@@ -30,7 +30,7 @@ const AssessmentsPage = () => {
     <div>
       <h1 className="text-4xl">Assessments</h1>
       {assessments
-        ? assessments.map((assessment) => AssessmentCard({ assessment }))
+        ? assessments.map((assessment) => AssessmentCard({ assessment, handleDelete }))
         : null}
     </div>
   );

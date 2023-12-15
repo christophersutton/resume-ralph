@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 
 const AssessmentPage = () => {
-  const [inputText, setInputText] = useState<string>("");
-  const [jdText, setJdText] = useState<string>("");
+  const [url, setUrl] = useState<string>("");
+  const [jobDescription, setjobDescription] = useState<string>("");
+  const [jobTitle, setJobTitle] = useState<string>("");
+  const [companyName, setCompanyName] = useState<string>("");
   const [assessment, setAssessment] = useState<ApiResponse | null>(null);
   const [showInput, setShowInput] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +17,12 @@ const AssessmentPage = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ jobDescription: jdText, url: inputText }),
+      body: JSON.stringify({
+        jobDescription,
+        url: url,
+        companyName,
+        jobTitle,
+      }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -42,7 +49,10 @@ const AssessmentPage = () => {
   };
 
   const resetForm = () => {
-    setInputText("");
+    setUrl("");
+    setCompanyName("");
+    setJobTitle("");
+    setjobDescription("");
     setAssessment(null);
     setShowInput(true);
   };
@@ -55,20 +65,34 @@ const AssessmentPage = () => {
       <div className="md:w-1/2 p-4">
         {showInput ? (
           <form onSubmit={handleSubmit}>
-            <label htmlFor="inputText">URL:</label>
+            <label htmlFor="url">URL:</label>
             <input
-              id="inputText"
+              id="url"
               className="text-black w-full p-2 border border-gray-300"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+            <label htmlFor="jobTitle">Job Title:</label>
+            <input
+              id="jobTitle"
+              className="text-black w-full p-2 border border-gray-300"
+              value={jobTitle}
+              onChange={(e) => setJobTitle(e.target.value)}
+            />
+            <label htmlFor="companyName">Company Name:</label>
+            <input
+              id="companyName"
+              className="text-black w-full p-2 border border-gray-300"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
             />
 
-            <label htmlFor="jdText">Job Description:</label>
+            <label htmlFor="jobDescription">Job Description:</label>
             <textarea
-              id="jdText"
+              id="jobDescription"
               className="text-black w-full h-64 p-2 border border-gray-300"
-              value={jdText}
-              onChange={(e) => setJdText(e.target.value)}
+              value={jobDescription}
+              onChange={(e) => setjobDescription(e.target.value)}
             />
             <button
               type="submit"
@@ -79,7 +103,7 @@ const AssessmentPage = () => {
           </form>
         ) : (
           <div>
-            <p className="whitespace-pre-wrap">{inputText}</p>
+            <p className="whitespace-pre-wrap">{url}</p>
             <button
               onClick={resetForm}
               className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"

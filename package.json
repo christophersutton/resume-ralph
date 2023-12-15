@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.17",
+    "@headlessui/tailwindcss": "^0.2.0",
+    "@heroicons/react": "^2.0.18",
     "@types/sqlite3": "^3.1.11",
     "ai": "^2.2.29",
     "marked": "^11.1.0",

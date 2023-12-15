@@ -12,7 +12,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
-    const { jobDescription, url } = await req.body;
+    const { jobDescription, url, jobTitle, companyName } = await req.body;
 
     const response = await openai.chat.completions.create({
       messages: [
@@ -38,16 +38,15 @@ export default async function handler(
     const data = response["choices"][0].message.content
       ? JSON.parse(response["choices"][0].message.content)
       : null;
-    
+
     if (isValidApiResponse(data)) {
-      
       const db = await getConnection();
       const sql =
         "INSERT INTO assessments(company_name, url, job_title, job_description, rater, grade, matchingTech, missingTech, matchingSkills, missingSkills) VALUES ($company_name, $url, $job_title, $job_description, $rater, $grade, json($matchingTech), json($missingTech), json($matchingSkills), json($missingSkills))";
       const params = {
-        $company_name: "Company Name",
+        $company_name: companyName,
         $url: url,
-        $job_title: "Job Title",
+        $job_title: jobTitle,
         $job_description: jobDescription,
         $rater: "gpt-3.5-turbo-1106",
         $grade: data.grade,
