@@ -1,20 +1,41 @@
 import * as cheerio from "cheerio";
+import { chromium } from "playwright";
+import TurndownService from "turndown";
+
+export async function fetchSPAContent(url: string) {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+
+  try {
+    await page.goto(url, { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(5000);
+    const content = await page.evaluate(() => document.body.innerHTML);
+
+    return cleanHTML(content);
+  } catch (error) {
+    console.error("Error fetching SPA content:", error);
+    throw error;
+  } finally {
+    await browser.close();
+  }
+}
 
 export function cleanHTML(content: string): string {
   const $ = cheerio.load(content);
 
   // Remove script tags
   $("script").remove();
+  $("style").remove();
   $("img").remove();
   $("footer").remove();
   $(".hidden").remove();
   //linkedin similar jobs section
-  console.log("Before removal:", $('.js-similar-jobs-list').length > 0);
+  console.log("Before removal:", $(".js-similar-jobs-list").length > 0);
 
   $(".js-similar-jobs-list").remove();
   $("form").remove();
   $("nav").remove();
-  $("iframe").remove();
+  //   $("iframe").remove();
   $("[style*='display: none']").remove();
 
   // Function to get the deepest child's text
@@ -33,15 +54,13 @@ export function cleanHTML(content: string): string {
     $(element).empty().append(deepestChildText);
   });
 
-  //   $("li").each((index, element) => {
-  //     if ($(element).find("a").length === 0) {
-  //       // Check if <li> does not contain <a>
-  //       const deepestChildText = getDeepestChildText(element);
-  //       $(element).empty().append(deepestChildText);
-  //     }
-  //   });
-
   return $.html();
+}
+
+export function createMarkdown(html: string) {
+  const turndownService = new TurndownService();
+  const markdown = turndownService.turndown(html);
+  return cleanMarkdown(markdown);
 }
 
 function removeNewlinesInLinks(markdownText: string) {

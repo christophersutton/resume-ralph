@@ -17,24 +17,6 @@ export async function convertMD(fileName: string): Promise<string> {
   return await marked(fileContents);
 }
 
-export async function fetchSPAContent(url: string) {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-
-  try {
-    await page.goto(url, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(5000);
-    const content = await page.evaluate(() => document.body.innerHTML);
-
-    return cleanHTML(content);
-  } catch (error) {
-    console.error("Error fetching SPA content:", error);
-    throw error;
-  } finally {
-    await browser.close();
-  }
-}
-
 export function camelToSnake(str: string): string {
   return str.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
 }
@@ -45,14 +27,12 @@ export function snakeToCamel(str: string): string {
 
 export function convertDBObject(obj: Record<string, any>): Record<string, any> {
   const newObj: Record<string, any> = {};
-
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const camelCaseKey = snakeToCamel(key);
       newObj[camelCaseKey] = obj[key];
     }
   }
-
   return newObj;
 }
 

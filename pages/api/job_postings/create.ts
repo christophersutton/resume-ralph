@@ -1,9 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import TurndownService from "turndown";
 import { insert } from "@/lib/db";
-import { fetchSPAContent } from "@/lib/serverUtils";
+import { createMarkdown, fetchSPAContent } from "@/lib/parsing";
 import { JobPosting } from "@/lib/types";
-import { cleanMarkdown } from "@/lib/parsing";
+
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,21 +16,19 @@ export default async function handler(
       if (!html) {
         throw new Error("Unable to load website.");
       }
-      const turndownService = new TurndownService();
-      const markdown = turndownService.turndown(html);
+
+      const markdown = createMarkdown(html);
       if (!markdown) {
         throw new Error("Unable to parse HTML to markdown.");
       }
-      const processedMarkdown = cleanMarkdown(markdown);
 
-      //console.log(processedMarkdown)
       const id = await insert<Omit<JobPosting, "id">>("job_postings", {
         url,
         html,
-        markdown: processedMarkdown,
+        markdown,
       });
 
-      res.status(200).json({ id, url, html, markdown: processedMarkdown });
+      res.status(200).json({ id, url, html, markdown });
     } catch (error: unknown) {
       const message = (error as Error).message || "Unable to save job posting.";
       res.status(500).json({ message: message });

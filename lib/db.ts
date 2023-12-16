@@ -2,7 +2,7 @@ import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
 import { convertDBObject } from "./serverUtils";
 
-type TableName = "job_postings" | "assessments";
+type TableName = "job_postings" | "assessments" | "job_summaries";
 
 let connection: Database | null = null;
 sqlite3.verbose();
