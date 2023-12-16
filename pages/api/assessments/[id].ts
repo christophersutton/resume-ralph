@@ -1,23 +1,24 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getConnection } from "@/lib/db";
-import { convertDBObject } from "@/lib/utils";
+import { deleteById, getAll, getById } from "@/lib/db";
+import { convertDBObject } from "@/lib/serverUtils";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
-    const db = await getConnection();
-    const {
-      method,
-      query: { id },
-    } = req;
+    const { method, query } = req;
+    const id = query.id as string;
 
     switch (method) {
       case "GET":
+        if (!id) {
+          res.status(400).json({ error: "Missing assessment id" });
+          return;
+        }
         if (id === "all") {
-          const rows = await db.all("SELECT * FROM assessments");
-          const response = rows.map(convertDBObject).map((row) => ({
+          const rows = await getAll("assessments");
+          const response = rows.map((row) => ({
             ...row,
             matchingTech: JSON.parse(row.matchingTech),
             missingTech: JSON.parse(row.missingTech),
@@ -27,10 +28,7 @@ export default async function handler(
 
           res.status(200).json(response);
         } else {
-          const row = await db.get(
-            "SELECT * FROM assessments WHERE id = ?",
-            id
-          );
+          const row = await getById("assessments", id);
           if (row) {
             res.status(200).json(convertDBObject(row));
           } else {
@@ -40,7 +38,7 @@ export default async function handler(
         break;
       case "DELETE":
         if (id) {
-          await db.run("DELETE FROM assessments WHERE id = ?", id);
+          await deleteById("assessments", id);
           res.status(200).json({ message: "Assessment deleted successfully" });
         } else {
           res.status(400).json({ error: "Missing assessment id" });

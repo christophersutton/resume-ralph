@@ -1,18 +1,28 @@
-interface Assessment {
+export interface JobPosting {
   id: number;
-  companyName: string | null;
-  jobTitle: number | null;
-  jobDescription: string | null;
-  url: string | null;
-  grade: string | null;
-  matchingTech: string[];
-  missingTech: string[];
-  matchingSkills: string[];
-  missingSkills: string[];
-  rater: string | null;
+  url: string;
+  html: string;
+  markdown: string;
+  primarySummary?: JobSummary;
+  summaries?: JobSummary[];
+  primaryAssessment?: Assessment;
+  assessments?: Assessment[];
 }
 
-interface ApiResponse {
+export interface JobSummary {
+  id: number;
+  jobId: number;
+  title: string;
+  company: string;
+  location: string;
+  keyTechnologies: string[];
+  keySkills: string[];
+  culture: string;
+}
+export interface Assessment extends AssessmentAPIResponse {
+  id: number;
+}
+export interface AssessmentAPIResponse {
   grade: string;
   matchingTech: string[];
   missingTech: string[];

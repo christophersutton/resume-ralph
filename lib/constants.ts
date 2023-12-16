@@ -1,4 +1,4 @@
-import { loadFile } from "./utils";
+import { loadFile } from "./serverUtils";
 export { FRONTEND_SKILLS } from "./skills";
 export { BACKEND_SKILLS } from "./skills";
 export { OTHER_SKILLS } from "./skills";

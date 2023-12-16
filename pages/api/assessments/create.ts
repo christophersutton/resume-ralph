@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { RESUME_CONTENTS } from "@/lib/constants";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getConnection } from "@/lib/db";
-import { isValidApiResponse, isValidJSON } from "@/lib/utils";
+import { isValidApiResponse } from "@/lib/serverUtils";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -56,8 +56,6 @@ export default async function handler(
         $missingSkills: JSON.stringify(data.missingSkills),
       };
 
-      console.log("SQL:", sql);
-      console.log("Parameters:", params);
       await db.run(sql, params);
 
       res.status(200).json(data);
