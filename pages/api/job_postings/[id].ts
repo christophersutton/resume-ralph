@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { deleteById, getAll, getById, getConnection } from "@/lib/db";
-import { convertDBObject } from "@/lib/serverUtils";
+import { deleteById, getAll, getAllJobPostings, getById, getConnection } from "@/lib/db";
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,7 +13,7 @@ export default async function handler(
     switch (method) {
       case "GET":
         if (id === "all") {
-          const rows = await getAll("job_postings");
+          const rows = await getAllJobPostings();
           res.status(200).json(rows);
         } else {
           const row = await getById("job_postings", id);

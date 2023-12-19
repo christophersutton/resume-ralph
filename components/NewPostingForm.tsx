@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TextInput } from "./TextInput";
 import { isValidUrl } from "@/lib/clientUtils";
-import { useStore } from "@/lib/context";
+import { useStore } from "@/context/context";
 import LoadingScreen from "./LoadingModal";
 
 interface JobPostingResponse {

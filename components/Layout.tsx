@@ -1,4 +1,4 @@
-import { useStore } from "@/lib/context";
+import { useStore } from "@/context/context";
 import Link from "next/link";
 import React, { useEffect } from "react";
 
@@ -22,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </header>
       <div className="flex w-full items-start gap-x-8 min-h-screen">
-        <aside className="sticky h-screen bg-slate-950 overflow-scroll top-8 hidden w-1/5 shrink-0 lg:block">
+        <aside className="sticky h-screen bg-slate-950 overflow-scroll top-8 w-1/5 shrink-0 lg:block">
           <div className="flex grow flex-col overflow-y-auto">
             <ul
               role="list"

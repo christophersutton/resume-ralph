@@ -12,9 +12,10 @@ export interface JobPosting {
 export interface JobSummary {
   id: number;
   jobId: number;
-  title: string;
-  company: string;
+  jobTitle: string;
+  companyName: string;
   location: string;
+  salaryInfo: string;
   keyTechnologies: string[];
   keySkills: string[];
   culture: string;

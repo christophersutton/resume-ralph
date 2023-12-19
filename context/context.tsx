@@ -8,15 +8,15 @@ import React, {
 } from "react";
 import { JobPosting, JobSummary } from "@/lib/types";
 import { useRouter } from "next/router";
+import { reducer } from "./reducer";
 
-interface Store {
+export interface Store {
   jobPostings: JobPosting[];
-  currentSelection: JobPosting | null;
 }
 
-const init: Store = { jobPostings: [], currentSelection: null };
+const init: Store = { jobPostings: [] };
 
-type Action =
+export type Action =
   | { type: "LOAD_ALL_POSTINGS"; payload: JobPosting[] }
   | { type: "ADD_JOB_POSTING"; payload: JobPosting }
   | { type: "REMOVE_JOB_POSTING"; payload: number }
@@ -25,67 +25,6 @@ type Action =
       type: "REMOVE_JOB_SUMMARY";
       payload: { jobId: number; summaryId: number };
     }
-  | { type: "SET_CURRENT_SELECTION"; payload: number };
-
-const reducer = (state: Store, action: Action): Store => {
-  switch (action.type) {
-    case "LOAD_ALL_POSTINGS":
-      return {
-        ...state,
-        jobPostings: action.payload,
-      };
-    case "ADD_JOB_POSTING":
-      return {
-        ...state,
-        jobPostings: [...state.jobPostings, action.payload],
-      };
-    case "REMOVE_JOB_POSTING":
-      return {
-        ...state,
-        jobPostings: state.jobPostings.filter(
-          (jobPosting) => jobPosting.id !== action.payload
-        ),
-      };
-    case "ADD_JOB_SUMMARY":
-      return {
-        ...state,
-        jobPostings: state.jobPostings.map((jobPosting) => {
-          if (jobPosting.id === action.payload.jobId) {
-            return {
-              ...jobPosting,
-              summaries: [...jobPosting.summaries, action.payload.summary],
-            };
-          }
-          return jobPosting;
-        }),
-      };
-    case "REMOVE_JOB_SUMMARY":
-      return {
-        ...state,
-        jobPostings: state.jobPostings.map((jobPosting) => {
-          if (jobPosting.id === action.payload.jobId) {
-            return {
-              ...jobPosting,
-              summaries: jobPosting.summaries.filter(
-                (summary) => summary.id !== action.payload.summaryId
-              ),
-            };
-          }
-          return jobPosting;
-        }),
-      };
-    case "SET_CURRENT_SELECTION":
-      return {
-        ...state,
-        currentSelection:
-          state.jobPostings.find(
-            (jobPosting) => jobPosting.id === action.payload
-          ) || null,
-      };
-    default:
-      return state;
-  }
-};
 
 interface StoreContextType {
   state: Store;
@@ -128,7 +67,7 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
       payload: jobPosting,
     });
     router.push(`/jobs/${jobPosting.id}`);
-  }, []);
+  }, [router]);
 
   const value = useMemo(
     () => ({

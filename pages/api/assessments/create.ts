@@ -2,7 +2,8 @@ import OpenAI from "openai";
 import { RESUME_CONTENTS } from "@/lib/constants";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getConnection } from "@/lib/db";
-import { isValidApiResponse } from "@/lib/serverUtils";
+import { validateResponse, isAssessment } from "@/lib/serverUtils";
+import { systemPrompts } from "@/lib/systemPrompts";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -18,9 +19,7 @@ export default async function handler(
       messages: [
         {
           role: "system",
-          content: `Resume Matcher Plus is designed to help the user quickly assess how well their resume matches a job description. The user will provide you with a markdown formatted resume and the text from a job description. You will analyze the resue against the job description and provide the user with a letter grade, a list of matching technologies, a list of missing technologies, a list of matching soft skills, and a list of missing soft skills. The result should be in JSON format:
-              {"grade": grade, "matchingTech": [matchingTech], "missingTech": [missingTech], "matchingSkills": [matchingSkills], "missingSkills": [missingSkills]}
-              `,
+          content: systemPrompts["assessment"],
         },
         {
           role: "user",
@@ -39,7 +38,7 @@ export default async function handler(
       ? JSON.parse(response["choices"][0].message.content)
       : null;
 
-    if (isValidApiResponse(data)) {
+    if (validateResponse(data, isAssessment)) {
       const db = await getConnection();
       const sql =
         "INSERT INTO assessments(company_name, url, job_title, job_description, rater, grade, matchingTech, missingTech, matchingSkills, missingSkills) VALUES ($company_name, $url, $job_title, $job_description, $rater, $grade, json($matchingTech), json($missingTech), json($matchingSkills), json($missingSkills))";
