@@ -1,7 +1,6 @@
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
 import { convertDBObjectToJS, createSQLParams } from "./serverUtils";
-import { JobSummary } from "./types";
 
 type TableName = "job_postings" | "assessments" | "job_summaries";
 
@@ -46,9 +45,8 @@ export async function insert<T extends Record<string, any>>(
     const sql = `INSERT INTO ${table} 
       (${keysString}) VALUES (${valuesString})`;
 
-    console.log("inserting: ", sql, newParams);
     const result = await db.run(sql, newParams);
-    console.log("result", result);
+
     const id = result.lastID;
     if (!id) {
       throw new Error("Unable to insert into table.");
@@ -111,7 +109,6 @@ export async function getAllJobPostings(): Promise<any[]> {
       getAll("job_postings", db),
       getAll("job_summaries", db),
     ]);
-    db.close();
 
     const resp = jobPostings.map((j) => {
       const { primarySummaryId, ...job } = j;

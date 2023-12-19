@@ -5,7 +5,7 @@ import { Disclosure } from "@headlessui/react";
 
 import { useStore } from "@/context/context";
 import { JobPosting } from "@/lib/types";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 
 const JobDetails = () => {
   const router = useRouter();

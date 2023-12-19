@@ -6,3 +6,7 @@ export const isValidUrl = (urlString: string) => {
     return false;
   }
 };
+
+export function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(" ");
+}

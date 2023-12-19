@@ -1,4 +1,4 @@
-import NewPostingForm from "@/components/NewPostingForm";
+import NewPostingForm from "@/components/Layout/NewPostingForm";
 
 const HomePage = () => {
   
