@@ -1,6 +1,7 @@
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
 import { convertDBObjectToJS, createSQLParams } from "./serverUtils";
+import { JobSummary } from "./types";
 
 type TableName = "job_postings" | "assessments" | "job_summaries";
 
@@ -105,21 +106,17 @@ export async function update<T extends Record<string, any>>(
 export async function getAllJobPostings(): Promise<any[]> {
   try {
     const db = await getConnection();
-    let jobPostings;
-    let summaries;
 
-    await Promise.all([
-      (jobPostings = await getAll("job_postings", db)),
-      (summaries = await getAll("job_summaries", db)),
+    const [jobPostings, summaries] = await Promise.all([
+      getAll("job_postings", db),
+      getAll("job_summaries", db),
     ]);
+    db.close();
 
-    const safeSummaries = summaries.map(convertDBObjectToJS);
-    const safePostings = jobPostings.map(convertDBObjectToJS);
-
-    const resp = safePostings.map((j) => {
+    const resp = jobPostings.map((j) => {
       const { primarySummaryId, ...job } = j;
-      job.summaries = safeSummaries.filter((s) => s.id === primarySummaryId);
-      job.primarySummary = safeSummaries.find((s) => s.id === primarySummaryId);
+      job.summaries = summaries.filter((s) => s.id === primarySummaryId);
+      job.primarySummary = summaries.find((s) => s.id === primarySummaryId);
       return job;
     });
 
