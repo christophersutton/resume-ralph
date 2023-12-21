@@ -8,7 +8,7 @@ export async function fetchSPAContent(url: string) {
 
   try {
     await page.goto(url, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(3000);
     const content = await page.evaluate(() => document.body.innerHTML);
 
     return cleanHTML(content);
@@ -23,39 +23,61 @@ export async function fetchSPAContent(url: string) {
 export function cleanHTML(content: string): string {
   const $ = cheerio.load(content);
 
-  // Remove script tags
+  // general removals
   $("script").remove();
   $("style").remove();
   $("img").remove();
   $("footer").remove();
   $(".hidden").remove();
-  //linkedin similar jobs section
-  console.log("Before removal:", $(".js-similar-jobs-list").length > 0);
-
-  $(".js-similar-jobs-list").remove();
   $("form").remove();
   $("nav").remove();
-  //   $("iframe").remove();
   $("[style*='display: none']").remove();
+  $("[role=menu]").remove();
+  $("button").remove();
 
-  // Function to get the deepest child's text
-  const getDeepestChildText = (element: cheerio.Element): string => {
-    let children = $(element).children();
-    while (children.length > 0) {
-      element = children.first()[0];
-      children = $(element).children();
-    }
-    return $(element).text();
-  };
+  //linkedin garbage
+  $(".similar-jobs").remove();
+  $(".cta-modal").remove();
+  $(".people-also-viewed").remove();
+  $(".similar-searches").remove();
+  $(".content-hub-cta").remove();
+  $(".related-jserps").remove();
+  $(".topcard__flavor--metadata").remove();
+  $(".face-pile").remove();
+  $(".job-alert-redirect-section").remove();
+  $(".skip-link").remove();
+  $(".sub-nav-cta").remove();
+
+  // ycombinator
+  $("div")
+    .filter(function () {
+      return $(this).text().trim() === "Similar Jobs";
+    })
+    .parent()
+    .remove();
+  $(".company-other-jobs").remove();
 
   // Iterate over each <a> tag and clean it
   $("a").each((index, element) => {
-    const deepestChildText = getDeepestChildText(element);
+    const deepestChildText = getDeepestChildText($, element);
     $(element).empty().append(deepestChildText);
   });
 
   return $.html();
 }
+
+// Function to get the deepest child's text
+const getDeepestChildText = (
+  $: cheerio.CheerioAPI,
+  element: cheerio.Element
+): string => {
+  let children = $(element).children();
+  while (children.length > 0) {
+    element = children.first()[0];
+    children = $(element).children();
+  }
+  return $(element).text();
+};
 
 export function createMarkdown(html: string) {
   const turndownService = new TurndownService();
