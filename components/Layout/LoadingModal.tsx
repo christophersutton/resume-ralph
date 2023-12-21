@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import { Spinner } from "@/components/ui/Spinner";
@@ -24,8 +24,15 @@ const colorClasses = {
   complete: "text-green-700",
 };
 
-const displayURL = (url: string) =>
-  url.replace(/^https?:\/\//, "").split("?")[0];
+const displayURL = (url: string) => {
+  const str = url.replace(/^https?:\/\//, "").split("?")[0];
+  const maxLen = 60;
+  if (str.length > maxLen) {
+    return str.substring(0, maxLen) + '...';
+  }
+  return str;
+}
+  
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({
   loading,
@@ -34,33 +41,36 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isOpen, setIsOpen] = useState(loading);
-  const delay = !loading ? 200 : 2000; // Short delay if loaded, else longer delay
+  const displayUrl = displayURL(url);
 
   useEffect(() => {
     // trigger the load once loading is true, but let the interval handle the rest
     if (loading) setIsOpen(loading);
   }, [loading]);
 
+  const intervalId = useRef<NodeJS.Timeout | null>(null); // Define useRef outside of useEffect
+
   useEffect(() => {
-    const interval = setInterval(() => {
+    const delay = loading ? 2000 : 500;
+
+    const updateStep = () => {
       setCurrentStep((prevStep) => {
+        const isLastStep = prevStep === steps.length - 1;
         const nextStep = (prevStep + 1) % steps.length;
-        if (loading && prevStep === steps.length - 1) {
-          return prevStep;
-        }
-        // If loaded and on the last step, clear the interval
-        if (!loading && nextStep === 0) {
-          clearInterval(interval);
-          setIsOpen(false);
-        } else if (!loading) {
-          return prevStep; // Keep the currentStep on the last step until loading becomes false
-        }
+        if (loading && isLastStep) return prevStep;
+        if (!loading && nextStep === 0) setIsOpen(false);
         return nextStep;
       });
-    }, delay);
+    };
 
-    return () => clearInterval(interval);
-  }, [loading, delay]);
+    intervalId.current = setInterval(updateStep, delay); // Use intervalId.current inside useEffect
+
+    return () => {
+      if (intervalId.current !== null) {
+        clearInterval(intervalId.current);
+      }
+    };
+  }, [loading, intervalId]);
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -77,7 +87,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
           <div className="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity" />
         </Transition.Child>
 
-        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <Transition.Child
               as={Fragment}
@@ -88,7 +98,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-slate-200 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-slate-200 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:p-6">
                 <div>
                   <div className="mt-3 text-center">
                     <Dialog.Title
@@ -128,7 +138,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
                               >
                                 <div className="w-7 h-8 flex justify-center place-items-center">
                                   {currentStep === index ? (
-                                    <Spinner size="5"/>
+                                    <Spinner size="5" />
                                   ) : (
                                     <CheckCircleIcon />
                                   )}
@@ -148,8 +158,10 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
                                     <span className="">
                                       Fetching:
                                       <Pill
-                                        text={displayURL(url)}
-                                        color={currentStep > index ? "green" : "gray"}
+                                        text={displayUrl}
+                                        color={
+                                          currentStep > index ? "green" : "gray"
+                                        }
                                         colorMode="light"
                                       />
                                     </span>
