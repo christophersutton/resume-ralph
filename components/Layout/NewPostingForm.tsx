@@ -20,13 +20,15 @@ const NewPostingForm: React.FC = () => {
   const [serverError, setServerError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  
-
   const reset = () => {
-    setUrl("");
-    setValidationError(null);
-    setServerError("");
     setLoading(false);
+    setValidationError(null);
+    setServerError(null);
+
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
+    setUrl("");
   };
   const handleBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value.trim();
@@ -56,9 +58,7 @@ const NewPostingForm: React.FC = () => {
     }
     setLoading(true);
     setServerError("");
-    if (inputRef.current) {
-      inputRef.current.blur();
-  }
+
     try {
       const response = await fetch("/api/job_postings/create", {
         method: "POST",
@@ -113,7 +113,7 @@ const NewPostingForm: React.FC = () => {
           value={url}
           onBlur={(event) => handleBlur(event)}
           onChange={(event) => handleChange(event)}
-          ref={inputRef} 
+          ref={inputRef}
         />
       </form>
     </div>

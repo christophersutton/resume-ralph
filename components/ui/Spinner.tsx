@@ -1,7 +1,11 @@
-export const Spinner = () => {
+interface SpinnerProps {
+  size?: string;
+}
+export const Spinner = ({ size }: SpinnerProps) => {
+  size = size || "6";
   return (
     <svg
-      className="animate-spin h-6 w-6 text-gray-800"
+      className={`animate-spin h-${size} w-${size} text-gray-800`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

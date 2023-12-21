@@ -4,13 +4,19 @@ import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import { Spinner } from "@/components/ui/Spinner";
 import { classNames } from "@/lib/clientUtils";
 import { Button } from "../ui/Button";
+import Pill from "../ui/Pill";
 interface LoadingScreenProps {
   loading: boolean;
   url: string;
   serverError: string | null;
 }
 
-const steps = ["Fetching", "Parsing website content", "Analyzing job posting"];
+const steps = [
+  "Fetching",
+  "Parsing website content",
+  "Analyzing job posting",
+  "Summarizing job posting",
+];
 
 const colorClasses = {
   active: "text-gray-800",
@@ -18,7 +24,8 @@ const colorClasses = {
   complete: "text-green-700",
 };
 
-const stripHttps = (url: string) => url.replace(/^https?:\/\//, "");
+const displayURL = (url: string) =>
+  url.replace(/^https?:\/\//, "").split("?")[0];
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({
   loading,
@@ -81,23 +88,23 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-slate-200 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                 <div>
-                  <div className="mt-3 text-center sm:mt-5">
+                  <div className="mt-3 text-center">
                     <Dialog.Title
                       as="h3"
                       className={classNames(
-                        serverError ? "text-red-700" : "text-gray-900",
-                        "text-2xl font-light"
+                        serverError ? "text-red-700" : "text-slate-800",
+                        "text-2xl font-semibold"
                       )}
                     >
                       {serverError
                         ? "There was a Problem Processing This Job"
                         : "Processing Your Job Posting"}
                     </Dialog.Title>
-                    <div className="mt-8">
+                    <div className="mt-6">
                       {serverError ? (
-                        <p className="pb-8">
+                        <p className="pb-6">
                           {serverError} <br />
                           <br />
                           <Button
@@ -119,21 +126,11 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
                                   ]
                                 } text-lg flex items-center space-x-2`}
                               >
-                                <div className="w-8 h-8 flex justify-center place-items-center">
+                                <div className="w-7 h-8 flex justify-center place-items-center">
                                   {currentStep === index ? (
-                                    <Spinner />
+                                    <Spinner size="5"/>
                                   ) : (
-                                    <CheckCircleIcon
-                                      className={`${
-                                        colorClasses[
-                                          currentStep > index
-                                            ? "complete"
-                                            : currentStep === index
-                                            ? "active"
-                                            : "incomplete"
-                                        ]
-                                      } h-12`}
-                                    />
+                                    <CheckCircleIcon />
                                   )}
                                 </div>
                                 <div
@@ -145,11 +142,20 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
                                         ? "active"
                                         : "incomplete"
                                     ]
-                                  } text-lg font-bold flex-grow text-left`}
+                                  } text-lg flex-grow text-left`}
                                 >
-                                  {step === "Fetching"
-                                    ? `${step} ${stripHttps(url)}`
-                                    : `${step}`}
+                                  {step === "Fetching" ? (
+                                    <span className="">
+                                      Fetching:
+                                      <Pill
+                                        text={displayURL(url)}
+                                        color={currentStep > index ? "green" : "gray"}
+                                        colorMode="light"
+                                      />
+                                    </span>
+                                  ) : (
+                                    `${step}`
+                                  )}
                                 </div>
                               </li>
                             );
