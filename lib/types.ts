@@ -1,7 +1,6 @@
 export interface JobPosting {
   id: number;
   url: string;
-  html: string;
   markdown: string;
   primarySummary?: JobSummary;
   summaries?: JobSummary[];

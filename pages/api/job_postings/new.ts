@@ -24,11 +24,10 @@ export default async function handler(
 
       const id = await insert<Omit<JobPosting, "id">>("job_postings", {
         url,
-        html,
         markdown,
       });
 
-      res.status(200).json({ id, url, html, markdown });
+      res.status(200).json({ id, url, markdown });
     } catch (error: unknown) {
       const message = (error as Error).message || "Unable to save job posting.";
       res.status(500).json({ message: message });

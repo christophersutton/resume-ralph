@@ -60,7 +60,7 @@ const NewPostingForm: React.FC = () => {
     setServerError("");
 
     try {
-      const response = await fetch("/api/job_postings/create", {
+      const response = await fetch("/api/job_postings/new", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
