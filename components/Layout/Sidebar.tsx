@@ -18,7 +18,7 @@ const Sidebar = () => {
   if (!state.jobPostings) return <div>loading...</div>;
   return (
     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-slate-900 px-6 pb-4">
-      <div className="flex h-16 shrink-0 items-center">
+      <div className="flex h-16 shrink-0 items-center bg-slate-800 -mx-6 px-6 border-b">
         <h1 className="text-slate-100">RESUME RALPH</h1>
       </div>
       <nav className="flex flex-1 flex-col">
@@ -44,13 +44,16 @@ const Sidebar = () => {
                       >
                         {job.primarySummary ? (
                           <>
-                            <span>{job.primarySummary.jobTitle}</span>
+                            <span className="truncate ...">{job.primarySummary.jobTitle}</span>
                             <span className="font-thin">
                               {job.primarySummary.companyName}
                             </span>
                           </>
                         ) : (
-                          job.id
+                          <div role="status" className="max-w-sm animate-pulse">
+                            <div className="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4"></div>
+                            <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 w-24 mb-2.5"></div>
+                          </div>
                         )}
                       </Link>
                     </li>

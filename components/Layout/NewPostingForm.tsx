@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { classNames, isValidUrl } from "@/lib/clientUtils";
 import { useStore } from "@/context/context";
@@ -18,6 +18,9 @@ const NewPostingForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  
 
   const reset = () => {
     setUrl("");
@@ -34,11 +37,14 @@ const NewPostingForm: React.FC = () => {
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUrl(event.target.value.trim());
+    const inputValue = event.target.value.trim();
+    setUrl(inputValue);
     if (validationError) {
-      isValidUrl(event.target.value.trim())
-        ? setValidationError(null)
-        : setValidationError("Invalid URL");
+      if (!inputValue || isValidUrl(inputValue)) {
+        setValidationError(null);
+      } else {
+        setValidationError("Invalid URL");
+      }
     }
   };
 
@@ -48,9 +54,11 @@ const NewPostingForm: React.FC = () => {
       setValidationError("Invalid URL");
       return;
     }
-
     setLoading(true);
     setServerError("");
+    if (inputRef.current) {
+      inputRef.current.blur();
+  }
     try {
       const response = await fetch("/api/job_postings/create", {
         method: "POST",
@@ -63,23 +71,21 @@ const NewPostingForm: React.FC = () => {
         throw new Error(`${response.status} ${response.statusText}`);
       }
       const data = await response.json();
-
       addJobToStore(data);
       reset();
     } catch (error: any) {
       console.log("server error: ", error);
       setServerError(error.message || "An error occurred");
-
     }
   };
 
   return (
-    <>
+    <div className="flex flex-1 self-stretch overflow-clip">
       <LoadingScreen loading={loading} url={url} serverError={serverError} />
       <form
         className={classNames(
-          "relative flex flex-1 ml-10 md:ml-6 lg:ml-8 -pr-16   ",
-          validationError ? "border-b-4 -mb-1 border-red-700" : ""
+          "relative flex flex-1 ml-10 md:ml-6 lg:ml-8 align-middle ",
+          validationError ? "-mr-10" : ""
         )}
         onSubmit={handleSubmit}
       >
@@ -96,8 +102,10 @@ const NewPostingForm: React.FC = () => {
         <input
           id="url"
           className={classNames(
-            validationError ? "text-red-300" : "text-slate-400",
-            "bg-slate-900 block h-full w-full border-0 -ml-10 md:-ml-8 py-0 pl-14 md:pl-16 pr-0 -mr-12 placeholder:text-slate-400 focus:ring-0 sm:text-sm focus:bg-slate-700 "
+            validationError
+              ? "text-red-300 border-t-2 border-red-700 focus:border-red-700"
+              : "text-slate-400",
+            "bg-slate-900 block h-full w-full md:focus:w-3/4 xl:focus:w-1/2 transition-all bg-gradient-to-l border-0 -ml-10 md:-ml-8 py-0 pl-14 md:pl-16 pr-0 -mr-12 placeholder:text-slate-400 sm:text-sm focus:bg-slate-700 focus:ring-0"
           )}
           placeholder="Submit new job posting URL"
           type="url"
@@ -105,9 +113,10 @@ const NewPostingForm: React.FC = () => {
           value={url}
           onBlur={(event) => handleBlur(event)}
           onChange={(event) => handleChange(event)}
+          ref={inputRef} 
         />
       </form>
-    </>
+    </div>
   );
 };
 

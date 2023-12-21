@@ -74,7 +74,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </Transition.Root>
 
         {/* Static sidebar for desktop */}
-        <div className="hidden md:fixed md:inset-y-0 md:z-50 md:flex md:w-72 md:flex-col">
+        <div className="hidden md:fixed md:inset-y-0 md:flex md:w-72 md:flex-col">
           <Sidebar />
         </div>
 
@@ -96,9 +96,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               aria-hidden="true"
             />
 
-            <div className="flex flex-1 self-stretch ">
-              <NewPostingForm />
-            </div>
+            <NewPostingForm />
           </div>
 
           {/* Main content area */}
