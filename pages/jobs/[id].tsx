@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Markdown from "react-markdown";
 import { Disclosure } from "@headlessui/react";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 
 import { useStore } from "@/context/context";
 import { JobPosting } from "@/lib/types";
@@ -86,7 +87,6 @@ const JobDetails = () => {
         <div className="h-4 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"></div>
         <div className="h-4 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
         <div className="h-4 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
-
         <span className="sr-only">Loading...</span>
       </div>
     );
@@ -96,8 +96,15 @@ const JobDetails = () => {
     <>
       <div className="flex justify-between">
         <div>
-          <h2 className="text-4xl font-bold mb-2 text-slate-200">
-            <a href={job.url}>{job.primarySummary.jobTitle} </a>
+          <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 text-slate-200">
+            <a
+              className="flex space-x-2 items-center group hover:text-slate-400 mr-4"
+              href={job.url}
+              target="_blank"
+            >
+              <span className="">{job.primarySummary.jobTitle}</span>
+              <ArrowTopRightOnSquareIcon className="invisible group-hover:visible h-6 lg:h-7 xl:h-8" />
+            </a>
           </h2>
           <p className=" mb-1">
             {job.primarySummary.companyName} - {job.primarySummary.location}
@@ -108,21 +115,20 @@ const JobDetails = () => {
               : job.primarySummary.salaryInfo}
           </p>
         </div>
-        <div>
-          <JobActionsButton
-            jobId={job.id}
-            actions={[
-              {
-                name: "Regenerate Summary",
-                function: () => createSummary(job.id, job.markdown),
-              },
-              {
-                name: "Delete Posting",
-                function: () => deletePosting(job.id),
-              },
-            ]}
-          />
-        </div>
+
+        <JobActionsButton
+          jobId={job.id}
+          actions={[
+            {
+              name: "Regenerate Summary",
+              function: () => createSummary(job.id, job.markdown),
+            },
+            {
+              name: "Delete Posting",
+              function: () => deletePosting(job.id),
+            },
+          ]}
+        />
       </div>
       <div className="flex space-x-10">
         <div className="mt-4">

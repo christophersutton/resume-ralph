@@ -16,7 +16,7 @@ export default function JobActionsButton({ jobId, actions }: JobActionsButtonPro
   return (
     <div className="inline-flex rounded-md shadow-sm">
       <Menu as="div" className="relative block">
-        <Menu.Button className="relative inline-flex items-center rounded-md shadow-md shadow-slate-800 to-slate-900 from-slate-950 bg-gradient-to-b px-5 py-3 text-slate-400 ring-1 ring-inset ring-slate-900 hover:to-slate-950 focus:z-10">
+        <Menu.Button className="relative inline-flex items-center rounded-md shadow-md shadow-slate-800 to-slate-900 from-slate-950 bg-gradient-to-b px-3 py-2 lg:px-5 lg:py-3 text-slate-400 ring-1 ring-inset ring-slate-900 hover:to-slate-950 focus:z-10">
           Options
           <ChevronDownIcon className="h-5 w-5 ml-2" aria-hidden="true" />
         </Menu.Button>
