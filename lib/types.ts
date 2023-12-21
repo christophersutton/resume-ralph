@@ -2,15 +2,17 @@ export interface JobPosting {
   id: number;
   url: string;
   markdown: string;
-  primarySummary?: JobSummary;
-  summaries?: JobSummary[];
-  primaryAssessment?: Assessment;
-  assessments?: Assessment[];
 }
-
+export interface Job extends JobPosting {
+  primarySummary: JobSummary | null;
+  summaries: JobSummary[] | [];
+  primaryAssessment: Assessment | null;
+  assessments: Assessment[] | [];
+}
 export interface JobSummary {
   id: number;
   jobId: number;
+  isPrimary: boolean;
   jobTitle: string;
   companyName: string;
   location: string;

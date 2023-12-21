@@ -1,24 +1,25 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Markdown from "react-markdown";
 import { Disclosure } from "@headlessui/react";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 
 import { useStore } from "@/context/context";
-import { JobPosting } from "@/lib/types";
-import { Button } from "@/components/ui/Button";
+import { Job } from "@/lib/types";
 import JobActionsButton from "@/components/JobActions";
 
 const JobDetails = () => {
   const router = useRouter();
   const { id } = router.query;
   const { state, dispatch } = useStore();
-  const [job, setJob] = useState<JobPosting | null>(null);
+  const [job, setJob] = useState<Job | null>(null);
+  const lastSummaryIdRef = useRef<number | null>(null);
+  const [initialSummaryCreated, setInitialSummaryCreated] = useState(false);
 
   const createSummary = useCallback(
     async (jobId: number, jobDescription: string) => {
       try {
-        const response = await fetch("/api/job_summaries/create", {
+        const response = await fetch("/api/job_summaries/new", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -33,7 +34,11 @@ const JobDetails = () => {
           const result = await response.json();
           dispatch({
             type: "ADD_JOB_SUMMARY",
-            payload: { jobId: jobId, summary: result },
+            payload: {
+              jobId: jobId,
+              summary: result,
+              isPrimary: result.isPrimary,
+            },
           });
         } else {
           console.error("Failed to post job summary");
@@ -73,12 +78,17 @@ const JobDetails = () => {
 
   useEffect(() => {
     const idAsNumber = typeof id === "string" ? parseInt(id, 10) : null;
-    const fetchedJob = state.jobPostings.find((job) => job.id === idAsNumber);
+    const fetchedJob = state.jobs.find((job) => job.id === idAsNumber);
     if (fetchedJob) setJob(fetchedJob);
-    if (fetchedJob && !fetchedJob.primarySummary) {
+    if (
+      fetchedJob &&
+      !fetchedJob.primarySummary &&
+      lastSummaryIdRef.current !== idAsNumber
+    ) {
       createSummary(fetchedJob.id, fetchedJob.markdown);
+      lastSummaryIdRef.current = idAsNumber;
     }
-  }, [id, state.jobPostings, createSummary]);
+  }, [id, state.jobs, initialSummaryCreated, createSummary]);
 
   if (!job || !job.primarySummary) {
     return (

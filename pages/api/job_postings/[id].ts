@@ -16,7 +16,7 @@ export default async function handler(
           const rows = await getAllJobPostings();
           res.status(200).json(rows);
         } else {
-          const row = await getById("job_postings", id);
+          const row = await getById("jobs", id);
           if (row) {
             res.status(200).json(row);
           } else {
@@ -26,7 +26,7 @@ export default async function handler(
         break;
       case "DELETE":
         if (id) {
-          await deleteById("job_postings", id);
+          await deleteById("jobs", id);
           res.status(200).json({ message: "Job posting deleted successfully" });
         } else {
           res.status(400).json({ error: "Missing job posting id" });

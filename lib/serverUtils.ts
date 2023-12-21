@@ -26,6 +26,7 @@ export function convertDBObjectToJS(
   obj: Record<string, any>
 ): Record<string, any> {
   const newObj: Record<string, any> = {};
+  const booleanFields = ["isPrimary"];
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const camelCaseKey = snakeToCamel(key);
@@ -39,6 +40,9 @@ export function convertDBObjectToJS(
         } catch (error) {
           value = obj[key];
         }
+      }
+      if (booleanFields.includes(camelCaseKey)) {
+        value = value === 1 ? true : false;
       }
       newObj[camelCaseKey] = value;
     }
@@ -66,8 +70,12 @@ export function createSQLParams(params: Record<string, any>) {
     Object.entries(params).map(([key, value]) => [
       `$${key}`,
       // if value is array or object, stringify it
+      // if value is boolean, convert to 1 or 0
+      // else, return value
       Array.isArray(value) || typeof value === "object"
         ? JSON.stringify(value)
+        : typeof value === "boolean"
+        ? +value
         : value,
     ])
   );

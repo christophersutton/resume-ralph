@@ -1,8 +1,15 @@
+import { Assessment, JobPosting } from "@/lib/types";
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
 import { convertDBObjectToJS, createSQLParams } from "./serverUtils";
+import { Job, JobSummary } from "./types";
 
-type TableName = "job_postings" | "assessments" | "job_summaries";
+type TableName = "jobs" | "summaries" | "assessments";
+type TableTypeMapping = {
+  jobs: JobPosting;
+  summaries: JobSummary;
+  assessments: Assessment;
+};
 
 let connection: Database | null = null;
 sqlite3.verbose();
@@ -17,16 +24,24 @@ const getConnection = async (): Promise<Database> => {
   return connection;
 };
 
-const getAll = async (tablename: TableName, db?: Database) => {
+const getAll = async <T extends TableName>(
+  tablename: T,
+  db?: Database
+): Promise<TableTypeMapping[T][]> => {
   db = db || (await getConnection());
-  return (await db.all(`SELECT * FROM ${tablename}`)).map(convertDBObjectToJS);
+  return (await db.all(`SELECT * FROM ${tablename}`)).map(
+    convertDBObjectToJS
+  ) as TableTypeMapping[T][];
 };
 
-const getById = async (tablename: TableName, id: string, db?: Database) => {
+const getById = async <T extends TableName>(
+  tablename: T,
+  id: string,
+  db?: Database
+): Promise<TableTypeMapping[T] | null> => {
   db = db || (await getConnection());
-  return (await db.get(`SELECT * FROM ${tablename} WHERE id = ?`, id)).map(
-    convertDBObjectToJS
-  );
+  const result = await db.get(`SELECT * FROM ${tablename} WHERE id = ?`, id);
+  return result ? (convertDBObjectToJS(result) as TableTypeMapping[T]) : null;
 };
 
 const deleteById = async (tablename: TableName, id: string, db?: Database) => {
@@ -44,7 +59,7 @@ export async function insert<T extends Record<string, any>>(
     const { keysString, valuesString, newParams } = createSQLParams(params);
     const sql = `INSERT INTO ${table} 
       (${keysString}) VALUES (${valuesString})`;
-
+    console.log(sql, newParams);
     const result = await db.run(sql, newParams);
 
     const id = result.lastID;
@@ -53,68 +68,30 @@ export async function insert<T extends Record<string, any>>(
     }
     return id;
   } catch (error) {
+    console.error(error);
     throw new Error("Unable to insert into table.");
   }
 }
-export async function insertFK(
-  tableName: TableName,
-  fkCol: string,
-  fk: number,
-  id: number,
-  db?: Database
-) {
-  try {
-    db = db || (await getConnection());
-    const sql = `UPDATE ${tableName} SET ${fkCol} = ? WHERE id = ?`;
-    const result = await db.run(sql, fk, id);
-    const returnedId = result.lastID;
-    if (!returnedId) {
-      throw new Error("Unable to update FK.");
-    }
-    return returnedId;
-  } catch (error) {
-    throw new Error("Unable to update FK.");
-  }
-}
-export async function update<T extends Record<string, any>>(
-  table: TableName,
-  id: string,
-  params: T,
-  db?: Database
-): Promise<void> {
-  try {
-    db = db || (await getConnection());
-
-    // Transform params to have `$` prefixed keys
-    const transformedParams = Object.fromEntries(
-      Object.entries(params).map(([key, value]) => [`$${key}`, value])
-    );
-
-    const sql = `UPDATE ${table} SET 
-      (${Object.keys(params).join(", ")}) 
-      VALUES (${Object.keys(transformedParams).join(", ")}) 
-      where id = ${id}`;
-    console.log(sql);
-    await db.run(sql, transformedParams);
-  } catch (error) {
-    throw new Error("Unable to update row in table.");
-  }
-}
-
-export async function getAllJobPostings(): Promise<any[]> {
+export async function getAllJobPostings(): Promise<Job[]> {
   try {
     const db = await getConnection();
 
     const [jobPostings, summaries] = await Promise.all([
-      getAll("job_postings", db),
-      getAll("job_summaries", db),
+      getAll("jobs", db),
+      getAll("summaries", db),
     ]);
 
-    const resp = jobPostings.map((j) => {
-      const { primarySummaryId, ...job } = j;
-      job.summaries = summaries.filter((s) => s.id === primarySummaryId);
-      job.primarySummary = summaries.find((s) => s.id === primarySummaryId);
-      return job;
+    const resp: Job[] = jobPostings.map((job) => {
+      const jobSummaries = summaries.filter((s) => s.jobId === job.id);
+      const primarySummary =
+        jobSummaries.find((s: JobSummary) => s.isPrimary === true) || null;
+      return {
+        ...job,
+        summaries: jobSummaries,
+        primarySummary,
+        assessments: [],
+        primaryAssessment: null,
+      };
     });
 
     return resp;
@@ -123,4 +100,46 @@ export async function getAllJobPostings(): Promise<any[]> {
   }
 }
 
+export async function addSummary(
+  jobId: number,
+  summary: JobSummary,
+  db?: Database
+): Promise<JobSummary> {
+  db = db || (await getConnection());
+  try {
+    // check if there is a primary summary
+    const primarySummary = await db.get(
+      `SELECT * FROM summaries WHERE job_id = ? AND is_primary = 1`,
+      jobId
+    );
+    const isPrimary = primarySummary ? false : true;
+    const summaryId = await insert<Omit<JobSummary, "id">>("summaries", {
+      ...summary,
+      isPrimary,
+      jobId,
+    });
+    const newSummary = { ...summary, id: summaryId, jobId, isPrimary };
+    return newSummary;
+  } catch (error) {
+    throw new Error("Unable to add summary to database.");
+  }
+}
+
+export async function makeSummaryPrimary(
+  summaryId: number,
+  jobId: number,
+  db?: Database
+) {
+  db = db || (await getConnection());
+  try {
+    await db.run(
+      `UPDATE summaries 
+      SET is_primary = CASE WHEN id = ? THEN 1 ELSE 0 END 
+      WHERE job_id = ?`,
+      [summaryId, jobId]
+    );
+  } catch (error) {
+    throw new Error("Unable to update summary in database.");
+  }
+}
 export { getConnection, getAll, getById, deleteById };

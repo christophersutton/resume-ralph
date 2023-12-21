@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getConnection, insert, insertFK, update } from "@/lib/db";
+import { addSummary, getConnection, insert } from "@/lib/db";
 import { isJobSummary, validateResponse } from "@/lib/serverUtils";
 import { JobSummary } from "@/lib/types";
 import { systemPrompts } from "@/lib/systemPrompts";
@@ -34,22 +34,10 @@ export default async function handler(
     const data = response["choices"][0].message.content
       ? JSON.parse(response["choices"][0].message.content)
       : null;
-    
+
     if (validateResponse(data, isJobSummary)) {
-      const db = await getConnection();
-      const summaryId = await insert<Omit<JobSummary, "id">>(
-        "job_summaries",
-        { ...data, jobId },
-        db
-      );
-      await insertFK(
-        "job_postings",
-        "primary_summary_id",
-        summaryId,
-        jobId,
-        db
-      );
-      res.status(200).json({ ...data, id: summaryId, jobId });
+      const summary = await addSummary(jobId, data);
+      res.status(200).json(summary);
     } else {
       res
         .status(500)

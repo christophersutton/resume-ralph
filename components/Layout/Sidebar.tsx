@@ -7,15 +7,15 @@ import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 import { classNames } from "@/lib/clientUtils";
 
 const Sidebar = () => {
-  const { state, dispatch, loadAllPostings } = useStore();
+  const { state, loadAllJobs } = useStore();
   const router = useRouter();
   const { id } = router.query;
 
   useEffect(() => {
-    loadAllPostings();
+    loadAllJobs();
   }, []);
 
-  if (!state.jobPostings) return <div>loading...</div>;
+  if (!state.jobs) return <div>loading...</div>;
   return (
     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-slate-900 px-6 pb-4">
       <div className="flex h-16 shrink-0 items-center bg-slate-800 -mx-6 px-6 border-b">
@@ -28,8 +28,8 @@ const Sidebar = () => {
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
           <li>
             <ul role="list" className="-mx-2 space-y-1">
-              {state.jobPostings.length ? (
-                state.jobPostings.map((job) => {
+              {state.jobs.length ? (
+                state.jobs.map((job) => {
                   return (
                     <li key={job.id}>
                       <Link

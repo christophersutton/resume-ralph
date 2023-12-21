@@ -3,7 +3,6 @@ import { insert } from "@/lib/db";
 import { createMarkdown, fetchSPAContent } from "@/lib/parsing";
 import { JobPosting } from "@/lib/types";
 
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -22,7 +21,7 @@ export default async function handler(
         throw new Error("Unable to parse HTML to markdown.");
       }
 
-      const id = await insert<Omit<JobPosting, "id">>("job_postings", {
+      const id = await insert<Omit<JobPosting, "id">>("jobs", {
         url,
         markdown,
       });
