@@ -7,6 +7,7 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 import { useStore } from "@/context/context";
 import { Job } from "@/lib/types";
 import JobActionsButton from "@/components/JobActions";
+import JobSkeleton from "@/components/JobSkeleton";
 
 const JobDetails = () => {
   const router = useRouter();
@@ -90,91 +91,86 @@ const JobDetails = () => {
     }
   }, [id, state.jobs, initialSummaryCreated, createSummary]);
 
-  if (!job || !job.primarySummary) {
-    return (
-      <div role="status" className="max-w-2xl animate-pulse">
-        <div className="h-12 bg-gray-200 rounded-sm dark:bg-gray-700 w-4/5 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"></div>
-        <div className="h-4 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
-        <div className="h-4 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
-        <span className="sr-only">Loading...</span>
-      </div>
-    );
-  }
-
-  return (
+  if (!job) {
+    <JobSkeleton />;
+  } else if (!job.primarySummary) {
     <>
-      <div className="flex justify-between">
-        <div>
-          <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 text-slate-200">
-            <a
-              className="flex space-x-2 items-center group hover:text-slate-400 mr-4"
-              href={job.url}
-              target="_blank"
-            >
-              <span className="">{job.primarySummary.jobTitle}</span>
-              <ArrowTopRightOnSquareIcon className="invisible group-hover:visible h-6 lg:h-7 xl:h-8" />
-            </a>
-          </h2>
-          <p className=" mb-1">
-            {job.primarySummary.companyName} - {job.primarySummary.location}
-          </p>
-          <p className="italic">
-            {job.primarySummary.salaryInfo === "N/A"
-              ? "No Salary Info Available"
-              : job.primarySummary.salaryInfo}
-          </p>
-        </div>
-
-        <JobActionsButton
-          jobId={job.id}
-          actions={[
-            {
-              name: "Regenerate Summary",
-              function: () => createSummary(job.id, job.markdown),
-            },
-            {
-              name: "Delete Posting",
-              function: () => deletePosting(job.id),
-            },
-          ]}
-        />
-      </div>
-      <div className="flex space-x-10">
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold text-slate-200">
-            Key Technologies
-          </h3>
-          <ul className="list-disc list-inside">
-            {job.primarySummary.keyTechnologies.map((tech, index) => (
-              <li key={index}>{tech}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold text-slate-200">Key Skills</h3>
-          <ul className="list-disc list-inside">
-            {job.primarySummary.keySkills.map((skill, index) => (
-              <li key={index}>{skill}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-      <div className="mt-4">
-        <h3 className="text-lg font-semibold text-slate-200">Culture</h3>
-        <p>{job.primarySummary.culture}</p>
-      </div>
-
-      <Disclosure>
-        <Disclosure.Button className="text-lg font-semibold mt-4 text-slate-200 hover:text-slate-400">
-          See Full Job Description
-        </Disclosure.Button>
-        <Disclosure.Panel className="my-3 mr-2 p-4 bg-slate-300 text-slate-800 rounded-lg shadow-lg">
-          <Markdown className="prose prose-slate">{job.markdown}</Markdown>
-        </Disclosure.Panel>
-      </Disclosure>
+    <h1>Summarizing Job Description</h1>
     </>
-  );
+  } else
+    return (
+      <>
+        <div className="flex justify-between">
+          <div>
+            <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 text-slate-200">
+              <a
+                className="flex space-x-2 items-center group hover:text-slate-400 mr-4"
+                href={job.url}
+                target="_blank"
+              >
+                <span className="">{job.primarySummary.jobTitle}</span>
+                <ArrowTopRightOnSquareIcon className="invisible group-hover:visible h-6 lg:h-7 xl:h-8" />
+              </a>
+            </h2>
+            <p className=" mb-1">
+              {job.primarySummary.companyName} - {job.primarySummary.location}
+            </p>
+            <p className="italic">
+              {job.primarySummary.salaryInfo === "N/A"
+                ? "No Salary Info Available"
+                : job.primarySummary.salaryInfo}
+            </p>
+          </div>
+
+          <JobActionsButton
+            jobId={job.id}
+            actions={[
+              {
+                name: "Regenerate Summary",
+                function: () => createSummary(job.id, job.markdown),
+              },
+              {
+                name: "Delete Posting",
+                function: () => deletePosting(job.id),
+              },
+            ]}
+          />
+        </div>
+        <div className="flex space-x-10">
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold text-slate-200">
+              Key Technologies
+            </h3>
+            <ul className="list-disc list-inside">
+              {job.primarySummary.keyTechnologies.map((tech, index) => (
+                <li key={index}>{tech}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold text-slate-200">Key Skills</h3>
+            <ul className="list-disc list-inside">
+              {job.primarySummary.keySkills.map((skill, index) => (
+                <li key={index}>{skill}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold text-slate-200">Culture</h3>
+          <p>{job.primarySummary.culture}</p>
+        </div>
+
+        <Disclosure>
+          <Disclosure.Button className="text-lg font-semibold mt-4 text-slate-200 hover:text-slate-400">
+            See Full Job Description
+          </Disclosure.Button>
+          <Disclosure.Panel className="my-3 mr-2 p-4 bg-slate-300 text-slate-800 rounded-lg shadow-lg">
+            <Markdown className="prose prose-slate">{job.markdown}</Markdown>
+          </Disclosure.Panel>
+        </Disclosure>
+      </>
+    );
 };
 
 export default JobDetails;
