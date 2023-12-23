@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 
 import { useStore } from "@/context/context";
 import { Cog6ToothIcon } from "@heroicons/react/20/solid";
-import { classNames } from "@/lib/clientUtils";
+import { classNames } from "@/lib/utils/clientUtils";
 
 const Sidebar = () => {
   const { state, loadAllJobs } = useStore();

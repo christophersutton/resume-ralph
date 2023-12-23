@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { NextApiRequest, NextApiResponse } from "next";
-import { isJobSummary, validateResponse } from "@/lib/serverUtils";
-import { systemPrompts } from "@/lib/systemPrompts";
+import { isJobSummary, validateResponse } from "@/lib/utils/serverUtils";
+import { systemPrompts } from "@/lib/ai/prompts/systemPrompts";
 import { OPENAI_KEY, DB_LOCATION } from "@/lib/config";
 import DatabaseService from "@/lib/db";
 

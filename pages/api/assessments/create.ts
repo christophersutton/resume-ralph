@@ -2,8 +2,8 @@ import OpenAI from "openai";
 import { RESUME_CONTENTS } from "@/lib/constants";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getConnection } from "@/lib/db";
-import { validateResponse, isAssessment } from "@/lib/serverUtils";
-import { systemPrompts } from "@/lib/systemPrompts";
+import { validateResponse, isAssessment } from "@/lib/utils/serverUtils";
+import { systemPrompts } from "@/lib/ai/prompts/systemPrompts";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });

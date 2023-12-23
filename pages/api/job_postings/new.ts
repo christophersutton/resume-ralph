@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { createMarkdown, fetchSPAContent } from "@/lib/parsing";
+import { createMarkdown, fetchSPAContent } from "@/lib/utils/parsing";
 import { JobPosting } from "@/lib/types";
 import DatabaseService from "@/lib/db";
 import { DB_LOCATION } from "@/lib/config";

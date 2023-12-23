@@ -1,3 +1,5 @@
+import { ILLMRequest, ILLMResponse } from "./ai/ai";
+
 export interface JobPosting {
   id: number;
   url: string;
@@ -30,4 +32,13 @@ export interface AssessmentAPIResponse {
   missingTech: string[];
   matchingSkills: string[];
   missingSkills: string[];
+}
+
+
+export interface TaskRecord {
+  id: number;
+  request: ILLMRequest;
+  reponse: ILLMResponse;
+  status: "pending" | "completed" | "failed";
+  retries: number;
 }

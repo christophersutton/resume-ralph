@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-import { classNames, isValidUrl } from "@/lib/clientUtils";
+import { classNames, isValidUrl } from "@/lib/utils/clientUtils";
 import { useStore } from "@/context/context";
 import LoadingScreen from "./LoadingModal";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";

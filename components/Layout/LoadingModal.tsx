@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import { Spinner } from "@/components/ui/Spinner";
-import { classNames } from "@/lib/clientUtils";
+import { classNames } from "@/lib/utils/clientUtils";
 import { Button } from "../ui/Button";
 import Pill from "../ui/Pill";
 interface LoadingScreenProps {

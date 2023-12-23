@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { deleteById, getAll, getById } from "@/lib/db";
-import { convertDBObject } from "@/lib/serverUtils";
+import { convertDBObject } from "@/lib/utils/serverUtils";
 
 export default async function handler(
   req: NextApiRequest,

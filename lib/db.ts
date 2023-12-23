@@ -1,13 +1,14 @@
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
-import { convertDBObjectToJS, createSQLParams } from "./serverUtils";
-import { Assessment, Job, JobPosting, JobSummary } from "@/lib/types";
+import { convertDBObjectToJS, createSQLParams } from "./utils/serverUtils";
+import { Assessment, Job, JobPosting, JobSummary, TaskRecord } from "@/lib/types";
 
-type TableName = "jobs" | "summaries" | "assessments";
+type TableName = "jobs" | "summaries" | "assessments" | "tasks";
 type TableTypeMapping = {
   jobs: JobPosting;
   summaries: JobSummary;
   assessments: Assessment;
+  tasks: TaskRecord
 };
 
 class DatabaseService {
@@ -77,6 +78,35 @@ class DatabaseService {
     } catch (error) {
       console.error(error);
       throw new Error("Unable to insert into table.");
+    }
+  }
+  public async update<
+    T extends TableName,
+    U extends Partial<TableTypeMapping[T]>
+  >(
+    tableName: T,
+    updateFields: U,
+    conditions: { [K in keyof TableTypeMapping[T]]?: TableTypeMapping[T][K] }
+  ): Promise<void> {
+    const db = await this.getConnection();
+    try {
+      // Create the SET part of the SQL query
+      const setString = Object.keys(updateFields)
+        .map((key) => `${key} = ?`)
+        .join(", ");
+      const setValues = Object.values(updateFields);
+
+      // Create the WHERE part of the SQL query
+      const whereString = Object.keys(conditions)
+        .map((key) => `${key} = ?`)
+        .join(" AND ");
+      const whereValues = Object.values(conditions);
+
+      const sql = `UPDATE ${tableName} SET ${setString} WHERE ${whereString}`;
+      await db.run(sql, [...setValues, ...whereValues]);
+    } catch (error) {
+      console.error("Error updating record:", error);
+      throw new Error("Unable to update record in the database.");
     }
   }
 

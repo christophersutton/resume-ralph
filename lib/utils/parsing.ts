@@ -11,7 +11,7 @@ export async function fetchSPAContent(url: string) {
     await page.waitForTimeout(3000);
     const content = await page.evaluate(() => document.body.innerHTML);
 
-    return cleanHTML(content);
+    return cleanHTML(content, url);
   } catch (error) {
     console.error("Error fetching SPA content:", error);
     throw error;
@@ -20,7 +20,7 @@ export async function fetchSPAContent(url: string) {
   }
 }
 
-export function cleanHTML(content: string): string {
+export function cleanHTML(content: string, url: string): string {
   const $ = cheerio.load(content);
 
   // general removals
@@ -28,34 +28,38 @@ export function cleanHTML(content: string): string {
   $("style").remove();
   $("img").remove();
   $("footer").remove();
+  $("nav").remove();
+  $("header").remove();
   $(".hidden").remove();
   $("form").remove();
-  $("nav").remove();
   $("[style*='display: none']").remove();
   $("[role=menu]").remove();
   $("button").remove();
 
   //linkedin garbage
-  $(".similar-jobs").remove();
-  $(".cta-modal").remove();
-  $(".people-also-viewed").remove();
-  $(".similar-searches").remove();
-  $(".content-hub-cta").remove();
-  $(".related-jserps").remove();
-  $(".topcard__flavor--metadata").remove();
-  $(".face-pile").remove();
-  $(".job-alert-redirect-section").remove();
-  $(".skip-link").remove();
-  $(".sub-nav-cta").remove();
-
-  // ycombinator
-  $("div")
-    .filter(function () {
-      return $(this).text().trim() === "Similar Jobs";
-    })
-    .parent()
-    .remove();
-  $(".company-other-jobs").remove();
+  // if state for checking if url is linkedin
+  if (url.includes("linkedin")) {
+    $(".similar-jobs").remove();
+    $(".cta-modal").remove();
+    $(".people-also-viewed").remove();
+    $(".similar-searches").remove();
+    $(".content-hub-cta").remove();
+    $(".related-jserps").remove();
+    $(".topcard__flavor--metadata").remove();
+    $(".face-pile").remove();
+    $(".job-alert-redirect-section").remove();
+    $(".skip-link").remove();
+    $(".sub-nav-cta").remove();
+  }
+  if (url.includes("workatastartup") || url.includes("ycombinator")) {
+    $("div")
+      .filter(function () {
+        return $(this).text().trim() === "Similar Jobs";
+      })
+      .parent()
+      .remove();
+    $(".company-other-jobs").remove();
+  }
 
   // Iterate over each <a> tag and clean it
   $("a").each((index, element) => {
