@@ -1,13 +1,16 @@
 import OpenAI from "openai";
 import { NextApiRequest, NextApiResponse } from "next";
-import { addSummary, getConnection, insert } from "@/lib/db";
 import { isJobSummary, validateResponse } from "@/lib/serverUtils";
-import { JobSummary } from "@/lib/types";
 import { systemPrompts } from "@/lib/systemPrompts";
+import { OPENAI_KEY, DB_LOCATION } from "@/lib/config";
+import DatabaseService from "@/lib/db";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: OPENAI_KEY,
 });
+
+if(!DB_LOCATION) throw Error("DB_LOCATION not set")
+const db = DatabaseService.getInstance(DB_LOCATION);
 
 export default async function handler(
   req: NextApiRequest,
@@ -36,7 +39,7 @@ export default async function handler(
       : null;
 
     if (validateResponse(data, isJobSummary)) {
-      const summary = await addSummary(jobId, data);
+      const summary = await db.addSummary(jobId, data);
       res.status(200).json(summary);
     } else {
       res

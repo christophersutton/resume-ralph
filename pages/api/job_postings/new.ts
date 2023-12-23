@@ -1,7 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { insert } from "@/lib/db";
 import { createMarkdown, fetchSPAContent } from "@/lib/parsing";
 import { JobPosting } from "@/lib/types";
+import DatabaseService from "@/lib/db";
+import { DB_LOCATION } from "@/lib/config";
+
+if (!DB_LOCATION) throw Error("DB_LOCATION not set");
+const db = DatabaseService.getInstance(DB_LOCATION);
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,7 +25,7 @@ export default async function handler(
         throw new Error("Unable to parse HTML to markdown.");
       }
 
-      const id = await insert<Omit<JobPosting, "id">>("jobs", {
+      const id = await db.insert<Omit<JobPosting, "id">>("jobs", {
         url,
         markdown,
       });
