@@ -5,7 +5,9 @@ import { Disclosure } from "@headlessui/react";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 
 import { useStore } from "@/context/context";
-import { Assessment, Job } from "@/lib/types";
+import { Job } from "@/lib/types";
+import { LLMProvider, MistralModel, OpenAIModel } from "@/lib/ai/types";
+
 import JobActionsButton from "@/components/JobActions";
 import JobSkeleton from "@/components/JobSkeleton";
 import AssessmentCard from "@/components/AssessmentCard";
@@ -19,7 +21,12 @@ const JobDetails = () => {
   const [initialSummaryCreated, setInitialSummaryCreated] = useState(false);
 
   const createSummary = useCallback(
-    async (jobId: number, jobDescription: string) => {
+    async (
+      jobId: number,
+      jobDescription: string,
+      provider?: LLMProvider,
+      model?: MistralModel | OpenAIModel
+    ) => {
       try {
         const response = await fetch("/api/job_summaries/new", {
           method: "POST",
@@ -29,6 +36,8 @@ const JobDetails = () => {
           body: JSON.stringify({
             jobId,
             jobDescription,
+            provider: provider ? provider : "openai",
+            model: model ? model : "gpt-3.5-turbo-1106",
           }),
         });
 
@@ -79,7 +88,12 @@ const JobDetails = () => {
   );
 
   const createAssessment = useCallback(
-    async (jobId: number, jobDescription: string) => {
+    async (
+      jobId: number,
+      jobDescription: string,
+      provider?: LLMProvider,
+      model?: MistralModel | OpenAIModel
+    ) => {
       try {
         const response = await fetch("/api/assessments/new", {
           method: "POST",
@@ -163,12 +177,26 @@ const JobDetails = () => {
                 function: () => createSummary(job.id, job.markdown),
               },
               {
+                name: "Regenerate Mistral Summary",
+                function: () => createSummary(job.id, job.markdown, "mistral", "mistral-small"),
+              },
+              {
                 name: "Delete Posting",
                 function: () => deletePosting(job.id),
               },
               {
                 name: "Create Assessment",
                 function: () => createAssessment(job.id, job.markdown),
+              },
+              {
+                name: "Create Mistral Assessment",
+                function: () =>
+                  createAssessment(
+                    job.id,
+                    job.markdown,
+                    "mistral",
+                    "mistral-small"
+                  ),
               },
             ]}
           />

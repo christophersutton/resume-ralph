@@ -11,17 +11,22 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
-    const { jobDescription, jobId } = await req.body;
+    const {
+      jobDescription,
+      jobId,
+      provider = "openai",
+      model = "gpt-3.5-turbo-1106",
+    } = await req.body;
     const response = await llm.makeRequest({
-      jobId: jobId,
-      provider: "openai",
-      model: "gpt-3.5-turbo-1106",
+      jobId,
+      provider,
+      model,
       taskType: "job_summary",
       inputData: {
         jobDescription,
       },
     });
-
+  
     if (response.success && response.completionId) {
       const summary = await db.addJobEntity(
         jobId,
