@@ -1,14 +1,15 @@
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
 import { convertDBObjectToJS, createSQLParams } from "./utils/serverUtils";
-import { Assessment, Job, JobPosting, JobSummary, TaskRecord } from "@/lib/types";
+import { Assessment, Job, JobPosting, JobSummary } from "@/lib/types";
+import { Completion } from "./ai/types";
 
-type TableName = "jobs" | "summaries" | "assessments" | "tasks";
+type TableName = "jobs" | "summaries" | "assessments" | "completions";
 type TableTypeMapping = {
   jobs: JobPosting;
   summaries: JobSummary;
   assessments: Assessment;
-  tasks: TaskRecord
+  completions: Completion;
 };
 
 class DatabaseService {
@@ -85,25 +86,37 @@ class DatabaseService {
     U extends Partial<TableTypeMapping[T]>
   >(
     tableName: T,
-    updateFields: U,
-    conditions: { [K in keyof TableTypeMapping[T]]?: TableTypeMapping[T][K] }
+    id: number, // Assuming id is of type number
+    updateFields: U
   ): Promise<void> {
     const db = await this.getConnection();
     try {
+      // Modify updateFields to JSON stringify objects and arrays
+      const processedUpdateFields = Object.entries(updateFields).reduce(
+        (acc, [key, value]) => {
+          const k = key as keyof U;
+          acc[k] =
+            (typeof value === "object" || Array.isArray(value)) &&
+            value !== null
+              ? JSON.stringify(value)
+              : value;
+          return acc;
+        },
+        {} as U
+      );
+
       // Create the SET part of the SQL query
-      const setString = Object.keys(updateFields)
-        .map((key) => `${key} = ?`)
-        .join(", ");
-      const setValues = Object.values(updateFields);
+      const setString =
+        Object.keys(processedUpdateFields)
+          .map((key) => `${key} = ?`)
+          .join(", ") + ", updated_at = ?";
+      const setValues = Object.values(processedUpdateFields).concat(
+        new Date().toISOString()
+      );
 
-      // Create the WHERE part of the SQL query
-      const whereString = Object.keys(conditions)
-        .map((key) => `${key} = ?`)
-        .join(" AND ");
-      const whereValues = Object.values(conditions);
-
-      const sql = `UPDATE ${tableName} SET ${setString} WHERE ${whereString}`;
-      await db.run(sql, [...setValues, ...whereValues]);
+      // SQL statement to update by id
+      const sql = `UPDATE ${tableName} SET ${setString} WHERE id = ?`;
+      await db.run(sql, [...setValues, id]);
     } catch (error) {
       console.error("Error updating record:", error);
       throw new Error("Unable to update record in the database.");

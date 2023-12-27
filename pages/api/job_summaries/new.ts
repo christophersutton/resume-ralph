@@ -1,16 +1,10 @@
-import OpenAI from "openai";
 import { NextApiRequest, NextApiResponse } from "next";
-import { isJobSummary, validateResponse } from "@/lib/utils/serverUtils";
-import { systemPrompts } from "@/lib/ai/prompts/systemPrompts";
-import { OPENAI_KEY, DB_LOCATION } from "@/lib/config";
+import { DB_LOCATION } from "@/lib/config";
 import DatabaseService from "@/lib/db";
+import { createLLMService } from "@/lib/ai";
 
-const openai = new OpenAI({
-  apiKey: OPENAI_KEY,
-});
-
-if(!DB_LOCATION) throw Error("DB_LOCATION not set")
 const db = DatabaseService.getInstance(DB_LOCATION);
+const llm = createLLMService();
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,33 +12,23 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     const { jobDescription, jobId } = await req.body;
-
-    const response = await openai.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: systemPrompts["job_summary"],
-        },
-        {
-          role: "user",
-          content: `Here is the job description: ${jobDescription}`,
-        },
-      ],
-      stream: false,
+    const response = await llm.makeRequest({
+      provider: "openai",
       model: "gpt-3.5-turbo-1106",
-      response_format: { type: "json_object" },
+      taskType: "job_summary",
+      inputData: {
+        jobDescription,
+      },
     });
-    const data = response["choices"][0].message.content
-      ? JSON.parse(response["choices"][0].message.content)
-      : null;
 
-    if (validateResponse(data, isJobSummary)) {
-      const summary = await db.addSummary(jobId, data);
+    if (response.success) {
+      const summary = await db.addSummary(jobId, response.data);
       res.status(200).json(summary);
     } else {
-      res
-        .status(500)
-        .json({ error: "Generative Model did not output valid JSON" });
+      console.error(response);
+      res.status(500).json({
+        error: response.error,
+      });
     }
   } else {
     res.status(405);

@@ -1,5 +1,3 @@
-import { ILLMRequest, ILLMResponse } from "./ai/ai";
-
 export interface JobPosting {
   id: number;
   url: string;
@@ -35,10 +33,13 @@ export interface AssessmentAPIResponse {
 }
 
 
-export interface TaskRecord {
-  id: number;
-  request: ILLMRequest;
-  reponse: ILLMResponse;
-  status: "pending" | "completed" | "failed";
-  retries: number;
+export interface JobSummaryRequest {
+  jobDescription: string;
+  systemPrompt: string;
+  model: string;
+}
+export interface AssessmentRequest {
+  jobDescription: string;
+  summary: string;
+  resume: string;
 }
