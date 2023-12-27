@@ -28,11 +28,10 @@ const displayURL = (url: string) => {
   const str = url.replace(/^https?:\/\//, "").split("?")[0];
   const maxLen = 60;
   if (str.length > maxLen) {
-    return str.substring(0, maxLen) + '...';
+    return str.substring(0, maxLen) + "...";
   }
   return str;
-}
-  
+};
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({
   loading,
@@ -40,7 +39,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
   serverError,
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [isOpen, setIsOpen] = useState(loading);
+  const [isOpen, setIsOpen] = useState(false);
   const displayUrl = displayURL(url);
 
   useEffect(() => {
@@ -58,7 +57,10 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
         const isLastStep = prevStep === steps.length - 1;
         const nextStep = (prevStep + 1) % steps.length;
         if (loading && isLastStep) return prevStep;
-        if (!loading && nextStep === 0) setIsOpen(false);
+        if (!loading && nextStep === 0) {
+          clearInterval(intervalId.current!);
+          setIsOpen(false);
+        }
         return nextStep;
       });
     };
@@ -70,7 +72,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
         clearInterval(intervalId.current);
       }
     };
-  }, [loading, intervalId]);
+  }, [loading]);
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
