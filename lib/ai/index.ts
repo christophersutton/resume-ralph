@@ -196,6 +196,6 @@ export class LLMService {
 
 export function createLLMService() {
   const openAIProvider = new OpenAIProvider(OPENAI_API_KEY);
-  //const mistralProvider = new MistralProvider(MISTRAL_API_KEY);
-  return new LLMService(openAIProvider);
+  const mistralProvider = new MistralProvider(MISTRAL_API_KEY);
+  return new LLMService(openAIProvider, mistralProvider);
 }

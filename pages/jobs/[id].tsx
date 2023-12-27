@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {  useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Markdown from "react-markdown";
 import { Disclosure } from "@headlessui/react";
@@ -6,123 +6,20 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 
 import { useStore } from "@/context/context";
 import { Job } from "@/lib/types";
-import { LLMProvider, MistralModel, OpenAIModel } from "@/lib/ai/types";
 
-import JobActionsButton from "@/components/JobActions";
+import JobActionsButton from "@/components/JobActionsButton";
 import JobSkeleton from "@/components/JobSkeleton";
 import AssessmentCard from "@/components/AssessmentCard";
+import JobActionsPanel from "@/components/JobActionsPanel";
 
 const JobDetails = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { state, dispatch } = useStore();
+  const { state, createSummary, deleteJob, createAssessment } =
+    useStore();
   const [job, setJob] = useState<Job | null>(null);
   const lastSummaryIdRef = useRef<number | null>(null);
   const [initialSummaryCreated, setInitialSummaryCreated] = useState(false);
-
-  const createSummary = useCallback(
-    async (
-      jobId: number,
-      jobDescription: string,
-      provider?: LLMProvider,
-      model?: MistralModel | OpenAIModel
-    ) => {
-      try {
-        const response = await fetch("/api/job_summaries/new", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            jobId,
-            jobDescription,
-            provider: provider ? provider : "openai",
-            model: model ? model : "gpt-3.5-turbo-1106",
-          }),
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          dispatch({
-            type: "ADD_JOB_SUMMARY",
-            payload: {
-              jobId: jobId,
-              summary: result,
-              isPrimary: result.isPrimary,
-            },
-          });
-        } else {
-          console.error("Failed to post job summary");
-        }
-      } catch (error) {
-        console.error("An error occurred while posting job summary:", error);
-      }
-    },
-    [dispatch]
-  );
-
-  const deletePosting = useCallback(
-    async (jobId: number) => {
-      try {
-        const response = await fetch(`/api/job_postings/${jobId}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ jobId }),
-        });
-        if (response.ok) {
-          dispatch({
-            type: "REMOVE_JOB_POSTING",
-            payload: jobId,
-          });
-          router.push("/");
-        } else {
-          console.error("Failed to delete job posting");
-        }
-      } catch (error) {
-        console.error("An error occurred while deleting job posting:", error);
-      }
-    },
-    [dispatch, router]
-  );
-
-  const createAssessment = useCallback(
-    async (
-      jobId: number,
-      jobDescription: string,
-      provider?: LLMProvider,
-      model?: MistralModel | OpenAIModel
-    ) => {
-      try {
-        const response = await fetch("/api/assessments/new", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            jobId: jobId,
-            jobDescription: jobDescription,
-          }),
-        });
-        if (response.ok) {
-          const result = await response.json();
-          dispatch({
-            type: "ADD_ASSESSMENT",
-            payload: {
-              jobId: jobId,
-              assessment: result,
-            },
-          });
-        } else {
-          console.error("Failed to post job summary");
-        }
-      } catch (error) {
-        console.error("An error occurred while creating assessment:", error);
-      }
-    },
-    []
-  );
 
   useEffect(() => {
     const idAsNumber = typeof id === "string" ? parseInt(id, 10) : null;
@@ -133,7 +30,10 @@ const JobDetails = () => {
       !fetchedJob.primarySummary &&
       lastSummaryIdRef.current !== idAsNumber
     ) {
-      createSummary(fetchedJob.id, fetchedJob.markdown);
+      createSummary({
+        jobId: fetchedJob.id,
+        jobDescription: fetchedJob.markdown,
+      });
       lastSummaryIdRef.current = idAsNumber;
     }
   }, [id, state.jobs, initialSummaryCreated, createSummary]);
@@ -147,8 +47,8 @@ const JobDetails = () => {
   } else
     return (
       <>
-        <div className="flex justify-between">
-          <div>
+        <div className="flex space-x-6 justify-between">
+          <div className="lg:max-w-xl ">
             <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 text-slate-200">
               <a
                 className="flex space-x-2 items-center group hover:text-slate-400 mr-4"
@@ -167,82 +67,62 @@ const JobDetails = () => {
                 ? "No Salary Info Available"
                 : job.primarySummary.salaryInfo}
             </p>
-          </div>
+            <div className="flex space-x-10">
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-slate-200">
+                  Key Technologies
+                </h3>
+                <ul className="list-disc list-inside">
+                  {job.primarySummary.keyTechnologies.map((tech, index) => (
+                    <li key={index}>{tech}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-slate-200">
+                  Key Skills
+                </h3>
+                <ul className="list-disc list-inside">
+                  {job.primarySummary.keySkills.map((skill, index) => (
+                    <li key={index}>{skill}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-slate-200">
+                  Culture
+                </h3>
+                <p>{job.primarySummary.culture}</p>
+              </div>
+            </div>
+            {job.primaryAssessment && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-slate-200">
+                  Assessment
+                </h3>
+                <AssessmentCard
+                  assessment={job.primaryAssessment}
+                  handleDelete={() => null}
+                />
+              </div>
+            )}
 
-          <JobActionsButton
-            jobId={job.id}
-            actions={[
-              {
-                name: "Regenerate Summary",
-                function: () => createSummary(job.id, job.markdown),
-              },
-              {
-                name: "Regenerate Mistral Summary",
-                function: () => createSummary(job.id, job.markdown, "mistral", "mistral-small"),
-              },
-              {
-                name: "Delete Posting",
-                function: () => deletePosting(job.id),
-              },
-              {
-                name: "Create Assessment",
-                function: () => createAssessment(job.id, job.markdown),
-              },
-              {
-                name: "Create Mistral Assessment",
-                function: () =>
-                  createAssessment(
-                    job.id,
-                    job.markdown,
-                    "mistral",
-                    "mistral-small"
-                  ),
-              },
-            ]}
-          />
-        </div>
-        <div className="flex space-x-10">
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold text-slate-200">
-              Key Technologies
-            </h3>
-            <ul className="list-disc list-inside">
-              {job.primarySummary.keyTechnologies.map((tech, index) => (
-                <li key={index}>{tech}</li>
-              ))}
-            </ul>
+            <Disclosure>
+              <Disclosure.Button className="text-lg font-semibold mt-4 text-slate-200 hover:text-slate-400">
+                See Full Job Description
+              </Disclosure.Button>
+              <Disclosure.Panel className="my-3 mr-2 p-4 bg-slate-300 text-slate-800 rounded-lg shadow-lg">
+                <Markdown className="prose prose-slate">
+                  {job.markdown}
+                </Markdown>
+              </Disclosure.Panel>
+            </Disclosure>
           </div>
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold text-slate-200">Key Skills</h3>
-            <ul className="list-disc list-inside">
-              {job.primarySummary.keySkills.map((skill, index) => (
-                <li key={index}>{skill}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold text-slate-200">Culture</h3>
-            <p>{job.primarySummary.culture}</p>
+          <div className="flex-grow">
+            <JobActionsPanel jobId={job.id} jobDescription={job.markdown}  />
+            
           </div>
         </div>
-        {job.primaryAssessment && (
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold text-slate-200">Assessment</h3>
-            <AssessmentCard
-              assessment={job.primaryAssessment}
-              handleDelete={() => null}
-            />
-          </div>
-        )}
-
-        <Disclosure>
-          <Disclosure.Button className="text-lg font-semibold mt-4 text-slate-200 hover:text-slate-400">
-            See Full Job Description
-          </Disclosure.Button>
-          <Disclosure.Panel className="my-3 mr-2 p-4 bg-slate-300 text-slate-800 rounded-lg shadow-lg">
-            <Markdown className="prose prose-slate">{job.markdown}</Markdown>
-          </Disclosure.Panel>
-        </Disclosure>
       </>
     );
 };

@@ -3,15 +3,22 @@ import React, {
   useContext,
   useReducer,
   ReactNode,
-  useMemo,
   useCallback,
+  useMemo,
 } from "react";
 import { Assessment, Job, JobPosting, JobSummary } from "@/lib/types";
 import { useRouter } from "next/router";
 import { reducer } from "./reducer";
+import { LLMProvider, MistralModel, OpenAIModel } from "@/lib/ai/types";
 
 export interface Store {
   jobs: Job[];
+}
+interface createCompletionProps {
+  jobId: number;
+  jobDescription: string;
+  provider?: LLMProvider;
+  model?: MistralModel | OpenAIModel;
 }
 
 const init: Store = { jobs: [] };
@@ -38,11 +45,23 @@ const StoreContext = createContext<{
   dispatch: React.Dispatch<Action>;
   loadAllJobs: () => void;
   addJobToStore: (jobPosting: JobPosting) => void;
+  deleteJob: (jobId: number) => void;
+  createSummary: ({}: createCompletionProps) => Promise<{
+    success: boolean;
+    summary?: JobSummary;
+  }>;
+  createAssessment: ({}: createCompletionProps) => Promise<{
+    success: boolean;
+    assessment?: Assessment;
+  }>;
 }>({
   state: init,
   dispatch: () => {},
   loadAllJobs: () => {},
   addJobToStore: () => {},
+  deleteJob: () => {},
+  createSummary: async () => ({ success: false }),
+  createAssessment: async () => ({ success: false }),
 });
 
 interface StoreProviderProps {
@@ -52,6 +71,75 @@ interface StoreProviderProps {
 const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, init);
   const router = useRouter();
+
+  // Generalized API request function
+  const apiRequest = async (
+    url: string | URL | Request,
+    method: string,
+    body: {
+      provider?: LLMProvider;
+      model?: MistralModel | OpenAIModel;
+      jobId?: any;
+      jobDescription?: string;
+    },
+    actionType: string
+  ) => {
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) throw new Error(`Failed to ${method} at ${url}`);
+
+      const result = await response.json();
+      dispatch({
+        type: actionType as Action["type"],
+        payload: { jobId: body.jobId, ...result },
+      });
+
+      return { success: true, ...result };
+    } catch (error) {
+      console.error(`An error occurred while processing ${url}:`, error);
+      return { success: false };
+    }
+  };
+
+  const createSummary = useCallback((props: createCompletionProps) => {
+    return apiRequest(
+      "/api/job_summaries/new",
+      "POST",
+      {
+        ...props,
+        provider: props.provider ?? "openai",
+        model: props.model ?? "gpt-3.5-turbo-1106",
+      },
+      "ADD_JOB_SUMMARY"
+    );
+  }, []);
+
+  const createAssessment = useCallback((props: createCompletionProps) => {
+    return apiRequest(
+      "/api/assessments/new",
+      "POST",
+      {
+        ...props,
+        provider: props.provider ?? "openai",
+        model: props.model ?? "gpt-3.5-turbo-1106",
+      },
+      "ADD_ASSESSMENT"
+    );
+  }, []);
+
+  const deleteJob = useCallback((jobId: number) => {
+    return apiRequest(
+      `/api/job_postings/${jobId}`,
+      "DELETE",
+      { jobId },
+      "REMOVE_JOB_POSTING"
+    );
+  }, []);
 
   const loadAllJobs = useCallback(async () => {
     try {
@@ -82,9 +170,20 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
       state,
       loadAllJobs,
       addJobToStore,
+      createSummary,
+      deleteJob,
+      createAssessment,
       dispatch,
     }),
-    [state, loadAllJobs, dispatch, addJobToStore]
+    [
+      state,
+      loadAllJobs,
+      addJobToStore,
+      createSummary,
+      deleteJob,
+      createAssessment,
+      dispatch,
+    ]
   );
 
   return (
@@ -92,8 +191,8 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
   );
 };
 
-export const STORE_CONTEXT = ({ children }: { children: React.ReactNode }) => {
-  return <StoreProvider>{children}</StoreProvider>;
-};
+export const STORE_CONTEXT = ({ children }: { children: React.ReactNode }) => (
+  <StoreProvider>{children}</StoreProvider>
+);
 
 export const useStore = () => useContext(StoreContext);

@@ -19,7 +19,6 @@ export class MistralProvider {
         model: model,
         response_format: { type: response_format },
       });
-      console.log("mistral response: ", response);
 
       const data = response?.choices[0]?.message?.content
         ? JSON.parse(response.choices[0].message.content)
