@@ -5,9 +5,10 @@ import { Disclosure } from "@headlessui/react";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 
 import { useStore } from "@/context/context";
-import { Job } from "@/lib/types";
+import { Assessment, Job } from "@/lib/types";
 import JobActionsButton from "@/components/JobActions";
 import JobSkeleton from "@/components/JobSkeleton";
+import AssessmentCard from "@/components/AssessmentCard";
 
 const JobDetails = () => {
   const router = useRouter();
@@ -77,6 +78,38 @@ const JobDetails = () => {
     [dispatch, router]
   );
 
+  const createAssessment = useCallback(
+    async (jobId: number, jobDescription: string) => {
+      try {
+        const response = await fetch("/api/assessments/new", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jobId: jobId,
+            jobDescription: jobDescription,
+          }),
+        });
+        if (response.ok) {
+          const result = await response.json();
+          dispatch({
+            type: "ADD_ASSESSMENT",
+            payload: {
+              jobId: jobId,
+              assessment: result,
+            },
+          });
+        } else {
+          console.error("Failed to post job summary");
+        }
+      } catch (error) {
+        console.error("An error occurred while creating assessment:", error);
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     const idAsNumber = typeof id === "string" ? parseInt(id, 10) : null;
     const fetchedJob = state.jobs.find((job) => job.id === idAsNumber);
@@ -95,8 +128,8 @@ const JobDetails = () => {
     <JobSkeleton />;
   } else if (!job.primarySummary) {
     <>
-    <h1>Summarizing Job Description</h1>
-    </>
+      <h1>Summarizing Job Description</h1>
+    </>;
   } else
     return (
       <>
@@ -133,6 +166,10 @@ const JobDetails = () => {
                 name: "Delete Posting",
                 function: () => deletePosting(job.id),
               },
+              {
+                name: "Create Assessment",
+                function: () => createAssessment(job.id, job.markdown),
+              },
             ]}
           />
         </div>
@@ -156,10 +193,23 @@ const JobDetails = () => {
             </ul>
           </div>
         </div>
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold text-slate-200">Culture</h3>
-          <p>{job.primarySummary.culture}</p>
-        </div>
+        {job.primaryAssessment && (
+          <>
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold text-slate-200">
+                Assessment
+              </h3>
+              <AssessmentCard
+                assessment={job.primaryAssessment}
+                handleDelete={() => null}
+              />
+            </div>
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold text-slate-200">Culture</h3>
+              <p>{job.primarySummary.culture}</p>
+            </div>
+          </>
+        )}
 
         <Disclosure>
           <Disclosure.Button className="text-lg font-semibold mt-4 text-slate-200 hover:text-slate-400">

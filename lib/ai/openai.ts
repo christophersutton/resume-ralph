@@ -1,4 +1,3 @@
-import { JobSummaryRequest } from "@/lib/types";
 import { CompletionRequest, LLMResponse } from "./types";
 import OpenAI from "openai";
 

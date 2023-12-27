@@ -1,8 +1,13 @@
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
-import { convertDBObjectToJS, createSQLParams } from "./utils/serverUtils";
+import {
+  camelToSnake,
+  convertDBObjectToJS,
+  createSQLParams,
+  snakeToCamel,
+} from "../utils/serverUtils";
 import { Assessment, Job, JobPosting, JobSummary } from "@/lib/types";
-import { Completion } from "./ai/types";
+import { Completion } from "../ai/types";
 
 type TableName = "jobs" | "summaries" | "assessments" | "completions";
 type TableTypeMapping = {
@@ -84,17 +89,13 @@ class DatabaseService {
   public async update<
     T extends TableName,
     U extends Partial<TableTypeMapping[T]>
-  >(
-    tableName: T,
-    id: number, // Assuming id is of type number
-    updateFields: U
-  ): Promise<void> {
+  >(tableName: T, id: number, updateFields: U): Promise<void> {
     const db = await this.getConnection();
     try {
       // Modify updateFields to JSON stringify objects and arrays
       const processedUpdateFields = Object.entries(updateFields).reduce(
         (acc, [key, value]) => {
-          const k = key as keyof U;
+          const k = camelToSnake(key) as keyof U;
           acc[k] =
             (typeof value === "object" || Array.isArray(value)) &&
             value !== null
@@ -125,23 +126,25 @@ class DatabaseService {
 
   public async getAllJobPostings(): Promise<Job[]> {
     try {
-      const db = await this.getConnection();
-
-      const [jobPostings, summaries] = await Promise.all([
+      const [jobPostings, summaries, assessments] = await Promise.all([
         this.getAll("jobs"),
         this.getAll("summaries"),
+        this.getAll("assessments"),
       ]);
 
       const resp: Job[] = jobPostings.map((job) => {
         const jobSummaries = summaries.filter((s) => s.jobId === job.id);
+        const jobAssessments = assessments.filter((a) => a.jobId === job.id);
         const primarySummary =
           jobSummaries.find((s: JobSummary) => s.isPrimary === true) || null;
+        const primaryAssessment =
+          jobAssessments.find((a: Assessment) => a.isPrimary === true) || null;
         return {
           ...job,
           summaries: jobSummaries,
           primarySummary,
-          assessments: [],
-          primaryAssessment: null,
+          assessments: jobAssessments,
+          primaryAssessment: primaryAssessment,
         };
       });
 
@@ -169,6 +172,35 @@ class DatabaseService {
         jobId,
       });
       const newSummary = { ...summary, id: summaryId, jobId, isPrimary };
+      return newSummary;
+    } catch (error) {
+      throw new Error("Unable to add summary to database.");
+    }
+  }
+
+  public async addAssessment(
+    jobId: number,
+    assessment: Assessment,
+    completionId: number
+  ): Promise<Assessment> {
+    const db = await this.getConnection();
+    try {
+      // check if there is a primary summary
+      const primaryAssessment = await db.get(
+        `SELECT * FROM assessments WHERE job_id = ? AND is_primary = 1`,
+        jobId
+      );
+      const isPrimary = primaryAssessment ? false : true;
+      const assessmentId = await this.insert<Omit<Assessment, "id">>(
+        "assessments",
+        {
+          ...assessment,
+          completionId,
+          isPrimary,
+          jobId,
+        }
+      );
+      const newSummary = { ...assessment, id: assessmentId, jobId, isPrimary };
       return newSummary;
     } catch (error) {
       throw new Error("Unable to add summary to database.");

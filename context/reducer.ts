@@ -62,6 +62,23 @@ export const reducer = (state: Store, action: Action): Store => {
           return jobPosting;
         }),
       };
+    case "ADD_ASSESSMENT":
+      return {
+        ...state,
+        jobs: state.jobs.map((jobPosting) => {
+          if (jobPosting.id === action.payload.jobId) {
+            return {
+              ...jobPosting,
+              assessments: [
+                ...(jobPosting.assessments || []),
+                action.payload.assessment,
+              ],
+              primaryAssessment: action.payload.assessment,
+            };
+          }
+          return jobPosting;
+        }),
+      };
     default:
       return state;
   }

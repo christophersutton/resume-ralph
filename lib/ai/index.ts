@@ -1,4 +1,3 @@
-import { Job } from "@/lib/types";
 import DatabaseService from "@/lib/db";
 import { DB_LOCATION, MISTRAL_API_KEY, OPENAI_API_KEY } from "@/lib/config";
 import { systemPrompts } from "./prompts/systemPrompts";
@@ -12,7 +11,8 @@ import {
 } from "@/lib/ai/types";
 import { OpenAIProvider } from "./openai";
 import { MistralProvider } from "./mistral";
-import { isJobSummary } from "@/lib/utils/serverUtils";
+import { isAssessmentJSON, isJobSummaryJSON } from "@/lib/utils/serverUtils";
+import { RESUME_CONTENTS } from "@/lib/constants";
 
 const db = DatabaseService.getInstance(DB_LOCATION);
 
@@ -27,7 +27,8 @@ export class LLMService {
     mistralProvider?: MistralProvider
   ) {
     this.validators = {
-      summarize: isJobSummary,
+      job_summary: isJobSummaryJSON,
+      assessment: isAssessmentJSON,
     };
     this.openAIProvider = openAIProvider;
     this.mistralProvider = mistralProvider;
@@ -45,10 +46,14 @@ export class LLMService {
       this.isValidOutput(request.taskType, response.data)
     ) {
       await this.finishCompletionRecord(completionId, response);
-      return response;
+      return { ...response, completionId };
     } else {
       // await this.retryJob(jobId, request);
-      return { success: false, error: "Request failed or invalid output" };
+      return {
+        success: false,
+        error: "Request failed or invalid output",
+        completionId,
+      };
     }
   }
 
@@ -59,7 +64,10 @@ export class LLMService {
       case "assessment":
         return this.handleAssessmentTask(request);
       default:
-        return { success: false, error: "Unknown task type" };
+        return {
+          success: false,
+          error: "Unknown task type",
+        };
     }
   }
   private async handleSummaryTask(request: LLMRequest): Promise<LLMResponse> {
@@ -95,8 +103,12 @@ export class LLMService {
       },
       {
         role: "user",
-        content: `Here is the job description: ${request.inputData.jobDescription} 
-        Here is the job summary: ${request.inputData.jobSummary}`,
+        content: `Here is my resume:
+        ${RESUME_CONTENTS}
+        -----------
+        Here is the job description:
+       ${request.inputData.jobDescription} 
+        `,
       },
     ];
     let completionRequest: CompletionRequest = {
@@ -146,7 +158,9 @@ export class LLMService {
     response: LLMResponse
   ): Promise<void> {
     await db.update("completions", completionId, {
-      response,
+      response: response.data,
+      promptTokens: response.usage?.prompt_tokens ?? 0,
+      completionTokens: response.usage?.completion_tokens ?? 0,
       status: "completed",
     });
   }

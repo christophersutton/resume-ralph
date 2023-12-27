@@ -8,7 +8,6 @@ const AssessmentsPage = () => {
     fetch("/api/assessments/all")
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setAssessments(data);
       })
       .catch((error) => console.error("Error fetching assessments:", error));

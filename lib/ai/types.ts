@@ -20,6 +20,8 @@ export interface Completion {
   taskType: TaskType;
   response?: LLMResponse;
   status: CompletionStatus;
+  promptTokens: any;
+  completionTokens: any;
   retries: number;
   createdAt: Date;
   updatedAt: Date;
@@ -46,6 +48,7 @@ export interface LLMRequest {
 export interface LLMResponse {
   success: boolean;
   data?: any;
-  usage?: OpenAI.Completions.CompletionUsage | { string: number };
+  completionId?: number;
+  usage?: any;
   error?: string;
 }

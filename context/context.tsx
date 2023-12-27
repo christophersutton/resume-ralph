@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { Job, JobPosting, JobSummary } from "@/lib/types";
+import { Assessment, Job, JobPosting, JobSummary } from "@/lib/types";
 import { useRouter } from "next/router";
 import { reducer } from "./reducer";
 
@@ -27,6 +27,10 @@ export type Action =
   | {
       type: "REMOVE_JOB_SUMMARY";
       payload: { jobId: number; summaryId: number };
+    }
+  | {
+      type: "ADD_ASSESSMENT";
+      payload: { jobId: number; assessment: Assessment };
     };
 
 const StoreContext = createContext<{

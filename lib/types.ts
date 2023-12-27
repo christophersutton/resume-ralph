@@ -23,6 +23,9 @@ export interface JobSummary {
 }
 export interface Assessment extends AssessmentAPIResponse {
   id: number;
+  jobId: number;
+  isPrimary: boolean;
+  completionId: number;
 }
 export interface AssessmentAPIResponse {
   grade: string;

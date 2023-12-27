@@ -93,7 +93,7 @@ export function isValidJSONString(str: string | null): boolean {
   }
 }
 
-export function isAssessment(obj: any): obj is AssessmentAPIResponse {
+export function isAssessmentJSON(obj: any): obj is AssessmentAPIResponse {
   return (
     typeof obj === "object" &&
     typeof obj.grade === "string" &&
@@ -104,7 +104,7 @@ export function isAssessment(obj: any): obj is AssessmentAPIResponse {
   );
 }
 
-export function isJobSummary(obj: any): obj is JobSummary {
+export function isJobSummaryJSON(obj: any): obj is JobSummary {
   if (obj === "This is not a job description.") throw Error(obj);
   return (
     typeof obj === "object" &&
