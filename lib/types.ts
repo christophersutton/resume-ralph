@@ -2,6 +2,8 @@ export interface JobPosting {
   id: number;
   url: string;
   markdown: string;
+  createdAt: string;
+  updatedAt: string;
 }
 export interface Job extends JobPosting {
   primarySummary: JobSummary | null;
@@ -12,6 +14,7 @@ export interface Job extends JobPosting {
 export interface JobSummary {
   id: number;
   jobId: number;
+  completionId: number;
   isPrimary: boolean;
   jobTitle: string;
   companyName: string;
@@ -20,12 +23,16 @@ export interface JobSummary {
   keyTechnologies: string[];
   keySkills: string[];
   culture: string;
+  updatedAt: string;
+  createdAt: string;
 }
 export interface Assessment extends AssessmentAPIResponse {
   id: number;
   jobId: number;
   isPrimary: boolean;
   completionId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 export interface AssessmentAPIResponse {
   grade: string;

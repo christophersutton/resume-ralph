@@ -40,6 +40,7 @@ export interface MessageObject {
 }
 
 export interface LLMRequest {
+  jobId: number;
   provider: LLMProvider;
   model: MistralModel | OpenAIModel;
   taskType: TaskType;

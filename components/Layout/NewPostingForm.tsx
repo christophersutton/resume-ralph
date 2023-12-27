@@ -88,6 +88,7 @@ const NewPostingForm: React.FC = () => {
           validationError ? "-mr-10" : ""
         )}
         onSubmit={handleSubmit}
+        autoComplete="off"
       >
         <label htmlFor="url" className="sr-only">
           Job Posting URL

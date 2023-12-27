@@ -13,6 +13,7 @@ export default async function handler(
   if (req.method === "POST") {
     const { jobDescription, jobId } = await req.body;
     const response = await llm.makeRequest({
+      jobId: jobId,
       provider: "openai",
       model: "gpt-3.5-turbo-1106",
       taskType: "job_summary",
@@ -21,8 +22,13 @@ export default async function handler(
       },
     });
 
-    if (response.success) {
-      const summary = await db.addSummary(jobId, response.data);
+    if (response.success && response.completionId) {
+      const summary = await db.addJobEntity(
+        jobId,
+        response.data,
+        "summaries",
+        response.completionId
+      );
       res.status(200).json(summary);
     } else {
       console.error(response);

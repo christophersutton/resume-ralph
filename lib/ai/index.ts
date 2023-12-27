@@ -142,8 +142,9 @@ export class LLMService {
   }
 
   private async createCompletionRecord(request: LLMRequest): Promise<number> {
-    const { provider, model, taskType, inputData } = request;
+    const { provider, model, taskType, inputData, jobId } = request;
     const completionId = await db.insert("completions", {
+      jobId,
       model,
       provider,
       taskType,

@@ -4,7 +4,6 @@ import {
   camelToSnake,
   convertDBObjectToJS,
   createSQLParams,
-  snakeToCamel,
 } from "../utils/serverUtils";
 import { Assessment, Job, JobPosting, JobSummary } from "@/lib/types";
 import { Completion } from "../ai/types";
@@ -110,10 +109,8 @@ class DatabaseService {
       const setString =
         Object.keys(processedUpdateFields)
           .map((key) => `${key} = ?`)
-          .join(", ") + ", updated_at = ?";
-      const setValues = Object.values(processedUpdateFields).concat(
-        new Date().toISOString()
-      );
+          .join(", ") + ", updated_at = datetime('now')";
+      const setValues = Object.values(processedUpdateFields);
 
       // SQL statement to update by id
       const sql = `UPDATE ${tableName} SET ${setString} WHERE id = ?`;
@@ -204,6 +201,38 @@ class DatabaseService {
       return newSummary;
     } catch (error) {
       throw new Error("Unable to add summary to database.");
+    }
+  }
+  public async addJobEntity<T extends JobSummary | Assessment>(
+    jobId: number,
+    entity: T,
+    tableName: "summaries" | "assessments",
+    completionId: number
+  ): Promise<T> {
+    const db = await this.getConnection();
+    try {
+      // Check if there is a primary entity
+      const primaryEntity = await db.get(
+        `SELECT * FROM ${tableName} WHERE job_id = ? AND is_primary = 1`,
+        jobId
+      );
+      const isPrimary = primaryEntity ? false : true;
+      const entityId = await this.insert<Omit<T, "id">>(tableName, {
+        ...entity,
+        completionId,
+        isPrimary,
+        jobId,
+      });
+      const newEntity = {
+        ...entity,
+        id: entityId,
+        completionId,
+        jobId,
+        isPrimary,
+      };
+      return newEntity;
+    } catch (error) {
+      throw new Error(`Unable to add entity to ${tableName} in database.`);
     }
   }
 

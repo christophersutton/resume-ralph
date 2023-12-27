@@ -20,9 +20,9 @@ const AssessmentCard: React.FC<AssessmentCardProps> = ({
   handleDelete,
 }) => {
   return (
-    <div className="max-w-md mx-auto bg-slate-800 rounded-xl shadow-md overflow-hidden md:max-w-2xl my-4 ">
+    <div className=" my-4 ">
       <div className="md:flex">
-        <div className="p-8 w-full">
+        <div className="w-full">
           <div className="flex justify-between">
             <div className="flex flex-col items-end">
               <span className="text-6xl font-bold text-slate-100">
@@ -85,9 +85,7 @@ const AssessmentCard: React.FC<AssessmentCardProps> = ({
           </div>
         </div>
       </div>
-      <div className="border-t border-gray-300 py-4 px-8 flex justify-end">
-        
-      </div>
+      
     </div>
   );
 };

@@ -192,23 +192,19 @@ const JobDetails = () => {
               ))}
             </ul>
           </div>
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold text-slate-200">Culture</h3>
+            <p>{job.primarySummary.culture}</p>
+          </div>
         </div>
         {job.primaryAssessment && (
-          <>
-            <div className="mt-4">
-              <h3 className="text-lg font-semibold text-slate-200">
-                Assessment
-              </h3>
-              <AssessmentCard
-                assessment={job.primaryAssessment}
-                handleDelete={() => null}
-              />
-            </div>
-            <div className="mt-4">
-              <h3 className="text-lg font-semibold text-slate-200">Culture</h3>
-              <p>{job.primarySummary.culture}</p>
-            </div>
-          </>
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold text-slate-200">Assessment</h3>
+            <AssessmentCard
+              assessment={job.primaryAssessment}
+              handleDelete={() => null}
+            />
+          </div>
         )}
 
         <Disclosure>
