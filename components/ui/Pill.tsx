@@ -1,6 +1,6 @@
 import React from "react";
 
-interface PillProps {
+export interface PillProps {
   colorMode?: "light" | "dark";
   text: string;
   color:
@@ -37,7 +37,7 @@ const colorVariants = {
   },
 };
 
-const Pill: React.FC<PillProps> = ({ colorMode = "dark", text, color }) => {
+export const Pill: React.FC<PillProps> = ({ colorMode = "dark", text, color }) => {
   return (
     <span
       className={`${colorVariants[colorMode][color]} inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-500/10 m-0.5`}

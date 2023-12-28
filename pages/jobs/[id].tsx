@@ -11,6 +11,7 @@ import JobActionsButton from "@/components/JobActionsButton";
 import JobSkeleton from "@/components/JobSkeleton";
 import AssessmentCard from "@/components/AssessmentCard";
 import JobActionsPanel from "@/components/JobActionsPanel";
+import AssessmentList from "@/components/AssessmentList";
 
 const JobDetails = () => {
   const router = useRouter();
@@ -120,7 +121,7 @@ const JobDetails = () => {
           </div>
           <div className="flex-grow">
             <JobActionsPanel jobId={job.id} jobDescription={job.markdown}  />
-            
+            <AssessmentList jobId={job.id} />
           </div>
         </div>
       </>

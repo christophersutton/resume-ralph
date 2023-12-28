@@ -1,9 +1,7 @@
 import React from "react";
-import { Disclosure } from "@headlessui/react";
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
-
 import Pill from "./ui/Pill";
 import { Assessment } from "@/lib/types";
+import TagList from "./ui/TagList";
 
 interface AssessmentCardProps {
   assessment: Assessment;
@@ -28,33 +26,14 @@ const AssessmentCard: React.FC<AssessmentCardProps> = ({
               <span className="text-6xl font-bold text-slate-100">
                 {assessment.grade ?? "N/A"}
               </span>
-              
             </div>
           </div>
           <div className="flex mt-4">
             <div className="w-1/2">
-              <div>
-                <h4 className="font-bold">Matching Tech:</h4>
-                <ul className="flex flex-wrap">
-                  {assessment.matchingTech.map((tech, index) => (
-                    <li key={index}>
-                      <Pill text={tech} color="green" />
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <TagList label="Matching Tech" tags={assessment.matchingTech} />
             </div>
             <div className="w-1/2">
-              <div>
-                <h4 className="font-bold">Missing Tech:</h4>
-                <ul className="flex flex-wrap">
-                  {assessment.missingTech.map((tech, index) => (
-                    <li key={index}>
-                      <Pill text={tech} color="red" />
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <TagList label="Missing Tech" tags={assessment.missingTech} color="red" />
             </div>
           </div>
           <div className="flex mt-4">
@@ -85,7 +64,6 @@ const AssessmentCard: React.FC<AssessmentCardProps> = ({
           </div>
         </div>
       </div>
-      
     </div>
   );
 };
