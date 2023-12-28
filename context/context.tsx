@@ -94,9 +94,29 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
       if (!response.ok) throw new Error(`Failed to ${method} at ${url}`);
 
       const result = await response.json();
+
+      let payload = {};
+      switch (actionType) {
+        case "ADD_JOB_SUMMARY":
+          payload = {
+            jobId: body.jobId,
+            summary: result,
+            isPrimary: result.isPrimary,
+          };
+          break;
+        case "REMOVE_JOB_SUMMARY":
+          payload = { jobId: body.jobId, summaryId: result.summaryId };
+          break;
+        case "ADD_ASSESSMENT":
+          payload = { jobId: body.jobId, assessment: result };
+          break;
+        default:
+          break;
+      }
+
       dispatch({
         type: actionType as Action["type"],
-        payload: { jobId: body.jobId, ...result },
+        payload: payload as any,
       });
 
       return { success: true, ...result };

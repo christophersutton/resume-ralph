@@ -51,8 +51,9 @@ export class LLMService {
       // await this.retryJob(jobId, request);
       return {
         success: false,
-        error: "Request failed or invalid output",
+        error: response.error ?? "Invalid output",
         completionId,
+        data: response.data,
       };
     }
   }

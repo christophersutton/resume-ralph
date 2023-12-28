@@ -20,9 +20,19 @@ export class OpenAIProvider {
         temperature: temperature,
       });
 
-      const data = response?.choices[0]?.message?.content
-        ? JSON.parse(response.choices[0].message.content)
-        : null;
+      let data = null;
+      try {
+        data = response?.choices[0]?.message?.content
+          ? JSON.parse(response.choices[0].message.content)
+          : null;
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+        return {
+          success: false,
+          error: "Model didn't output JSON",
+          data: data,
+        };
+      }
 
       const usage = response?.usage;
       return { success: true, data: data, ...(usage ? { usage } : {}) };
