@@ -1,3 +1,4 @@
+import { TaskType } from "./../../../lib/ai/types";
 import { NextApiRequest, NextApiResponse } from "next";
 import { DB_LOCATION } from "@/lib/config";
 import DatabaseService from "@/lib/db";
@@ -13,18 +14,20 @@ export default async function handler(
   if (req.method === "POST") {
     const {
       jobDescription,
+      jobSummary,
       jobId,
       provider = "openai",
       model = "gpt-3.5-turbo-1106",
     } = await req.body;
+
+    const taskType = jobDescription ? "assessment" : "assessmentFromSummary";
+    const inputData = jobDescription ? jobDescription : jobSummary;
     const response = await llm.makeRequest({
       jobId,
       provider,
       model,
-      taskType: "assessment",
-      inputData: {
-        jobDescription,
-      },
+      taskType,
+      inputData,
     });
     if (response.success && response.completionId) {
       const summary = await db.addJobEntity(

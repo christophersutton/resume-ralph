@@ -73,7 +73,7 @@ export class LLMService {
         messages = templateFunction(request.inputData.jobDescription);
         break;
       }
-      case "assessment":
+      case "assessment": {
         const { templateId, templateFunction } = this.getTemplate(
           request.taskType
         );
@@ -83,21 +83,30 @@ export class LLMService {
           request.inputData.jobDescription
         );
         break;
+      }
+      case "assessmentFromSummary": {
+        const { templateId, templateFunction } = this.getTemplate(
+          request.taskType
+        );
+        promptTemplateId = templateId;
+        messages = templateFunction(
+          request.inputData.jobSummary,
+          request.inputData.jobDescription
+        );
+        break;
+      }
       default:
         return {
           success: false,
           error: "Unknown task type",
         };
     }
-    const completionRequest: CompletionRequest = {
+
+    const response = await this.callProviderApi(request.provider, {
       model: request.model,
       response_format: "json_object",
       messages: messages,
-    };
-    const response = await this.callProviderApi(
-      request.provider,
-      completionRequest
-    );
+    });
     return { ...response, promptTemplateId };
   }
 

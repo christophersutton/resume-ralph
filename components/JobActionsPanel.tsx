@@ -3,6 +3,7 @@ import SelectButton from "./ui/SelectButton";
 import { LLMProvider, MistralModel, OpenAIModel } from "@/lib/ai/types";
 import { useStore } from "@/context/context";
 import { Button } from "./ui/Button";
+import { JobSummary } from "@/lib/types";
 
 type Models = Record<LLMProvider, MistralModel[] | OpenAIModel[]>;
 
@@ -19,11 +20,13 @@ const models: Models = {
 interface JobActionsPanelProps {
   jobId: number;
   jobDescription: string;
+  jobSummary: JobSummary;
 }
 
 const JobActionsPanel: React.FC<JobActionsPanelProps> = ({
   jobId,
   jobDescription,
+  jobSummary,
 }) => {
   const { createAssessment, createSummary } = useStore();
   const [provider, setProvider] = useState<LLMProvider>("openai");
@@ -49,6 +52,20 @@ const JobActionsPanel: React.FC<JobActionsPanelProps> = ({
     const response = await createAssessment({
       jobId,
       jobDescription,
+      provider,
+      model,
+    });
+
+    if (response.success) {
+      alert("Summary created!");
+    } else {
+      alert("Summary creation failed!");
+    }
+  };
+  const handleAssessmentFromSummaryCreation = async () => {
+    const response = await createAssessment({
+      jobId,
+      jobSummary,
       provider,
       model,
     });
@@ -92,6 +109,10 @@ const JobActionsPanel: React.FC<JobActionsPanelProps> = ({
 
       <Button text={"Create Summary"} onClick={handleSummaryCreation} />
       <Button text={"Create Assessment"} onClick={handleAssessmentCreation} />
+      <Button
+        text={"Create Assessment from Summary"}
+        onClick={handleAssessmentFromSummaryCreation}
+      />
     </div>
   );
 };

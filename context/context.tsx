@@ -16,10 +16,21 @@ export interface Store {
 }
 interface createCompletionProps {
   jobId: number;
-  jobDescription: string;
   provider?: LLMProvider;
   model?: MistralModel | OpenAIModel;
 }
+interface SummaryCompletionProps extends createCompletionProps {
+  jobDescription: string;
+}
+interface AssessmentFromJDCompletionProps extends createCompletionProps {
+  jobDescription: string;
+}
+interface AssessmentWithSummaryCompletionProps extends createCompletionProps {
+  jobSummary: JobSummary;
+}
+type AssessmentCompletionProp =
+  | AssessmentWithSummaryCompletionProps
+  | AssessmentFromJDCompletionProps;
 
 const init: Store = { jobs: [] };
 
@@ -46,11 +57,11 @@ const StoreContext = createContext<{
   loadAllJobs: () => void;
   addJobToStore: (jobPosting: JobPosting) => void;
   deleteJob: (jobId: number) => void;
-  createSummary: ({}: createCompletionProps) => Promise<{
+  createSummary: ({}: SummaryCompletionProps) => Promise<{
     success: boolean;
     summary?: JobSummary;
   }>;
-  createAssessment: ({}: createCompletionProps) => Promise<{
+  createAssessment: ({}: AssessmentCompletionProp) => Promise<{
     success: boolean;
     assessment?: Assessment;
   }>;
@@ -126,7 +137,7 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     }
   };
 
-  const createSummary = useCallback((props: createCompletionProps) => {
+  const createSummary = useCallback((props: SummaryCompletionProps) => {
     return apiRequest(
       "/api/job_summaries/new",
       "POST",
@@ -139,7 +150,7 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     );
   }, []);
 
-  const createAssessment = useCallback((props: createCompletionProps) => {
+  const createAssessment = useCallback((props: AssessmentCompletionProp) => {
     return apiRequest(
       "/api/assessments/new",
       "POST",

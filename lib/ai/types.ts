@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-export type TaskType = "job_summary" | "assessment";
+export type TaskType = "job_summary" | "assessment" | "assessmentFromSummary";
 export type LLMProvider = "openai" | "mistral";
 export type OpenAIModel =
   | "gpt-3.5-turbo-0613" // current gpt-3.5-turbo, does not accept json mode

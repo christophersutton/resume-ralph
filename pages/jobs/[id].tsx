@@ -19,7 +19,6 @@ const JobDetails = () => {
   const { state, createSummary, deleteJob, createAssessment } = useStore();
   const [job, setJob] = useState<Job | null>(null);
   const lastSummaryIdRef = useRef<number | null>(null);
-  
 
   useEffect(() => {
     const idAsNumber = typeof id === "string" ? parseInt(id, 10) : null;
@@ -117,7 +116,11 @@ const JobDetails = () => {
             </Disclosure>
           </div>
           <div className="flex-grow">
-            <JobActionsPanel jobId={job.id} jobDescription={job.markdown} />
+            <JobActionsPanel
+              jobId={job.id}
+              jobDescription={job.markdown}
+              jobSummary={job.primarySummary}
+            />
             <AssessmentList jobId={job.id} />
           </div>
         </div>
