@@ -1,4 +1,4 @@
-import {  useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Markdown from "react-markdown";
 import { Disclosure } from "@headlessui/react";
@@ -16,11 +16,10 @@ import AssessmentList from "@/components/AssessmentList";
 const JobDetails = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { state, createSummary, deleteJob, createAssessment } =
-    useStore();
+  const { state, createSummary, deleteJob, createAssessment } = useStore();
   const [job, setJob] = useState<Job | null>(null);
   const lastSummaryIdRef = useRef<number | null>(null);
-  const [initialSummaryCreated, setInitialSummaryCreated] = useState(false);
+  
 
   useEffect(() => {
     const idAsNumber = typeof id === "string" ? parseInt(id, 10) : null;
@@ -37,7 +36,7 @@ const JobDetails = () => {
       });
       lastSummaryIdRef.current = idAsNumber;
     }
-  }, [id, state.jobs, initialSummaryCreated, createSummary]);
+  }, [id, state.jobs, createSummary]);
 
   if (!job) {
     <JobSkeleton />;
@@ -68,6 +67,10 @@ const JobDetails = () => {
                 ? "No Salary Info Available"
                 : job.primarySummary.salaryInfo}
             </p>
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold text-slate-200">Culture</h3>
+              <p>{job.primarySummary.culture}</p>
+            </div>
             <div className="flex space-x-10">
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-slate-200">
@@ -88,12 +91,6 @@ const JobDetails = () => {
                     <li key={index}>{skill}</li>
                   ))}
                 </ul>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold text-slate-200">
-                  Culture
-                </h3>
-                <p>{job.primarySummary.culture}</p>
               </div>
             </div>
             {job.primaryAssessment && (
@@ -120,7 +117,7 @@ const JobDetails = () => {
             </Disclosure>
           </div>
           <div className="flex-grow">
-            <JobActionsPanel jobId={job.id} jobDescription={job.markdown}  />
+            <JobActionsPanel jobId={job.id} jobDescription={job.markdown} />
             <AssessmentList jobId={job.id} />
           </div>
         </div>

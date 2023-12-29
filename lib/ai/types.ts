@@ -16,12 +16,13 @@ export interface Completion {
   id: number;
   model: MistralModel | OpenAIModel;
   provider: LLMProvider;
+  promptTemplateId: string | null;
   inputData: any;
   taskType: TaskType;
   response?: LLMResponse;
   status: CompletionStatus;
-  promptTokens: any;
-  completionTokens: any;
+  promptTokens: number;
+  completionTokens: number;
   retries: number;
   createdAt: Date;
   updatedAt: Date;
@@ -49,6 +50,7 @@ export interface LLMRequest {
 export interface LLMResponse {
   success: boolean;
   data?: any;
+  promptTemplateId?: string;
   completionId?: number;
   usage?: any;
   error?: string;
