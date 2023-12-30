@@ -9,7 +9,13 @@ import React, {
 import { Assessment, Job, JobPosting, JobSummary } from "@/lib/types";
 import { useRouter } from "next/router";
 import { reducer } from "./reducer";
-import { LLMProvider, MistralModel, OpenAIModel } from "@/lib/ai/types";
+import {
+  LLMModel,
+  LLMProvider,
+  MistralModel,
+  OllamaModel,
+  OpenAIModel,
+} from "@/lib/ai/types";
 
 export interface Store {
   jobs: Job[];
@@ -17,7 +23,7 @@ export interface Store {
 interface createCompletionProps {
   jobId: number;
   provider?: LLMProvider;
-  model?: MistralModel | OpenAIModel;
+  model?: LLMModel
 }
 interface SummaryCompletionProps extends createCompletionProps {
   jobDescription: string;
@@ -89,7 +95,7 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     method: string,
     body: {
       provider?: LLMProvider;
-      model?: MistralModel | OpenAIModel;
+      model?: LLMModel
       jobId?: any;
       jobDescription?: string;
     },
@@ -157,7 +163,9 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
       {
         ...props,
         provider: props.provider ?? "openai",
-        model: props.model ?? "gpt-3.5-turbo-1106",
+        model:
+          props.model ??
+          ("gpt-3.5-turbo-1106" as LLMModel),
       },
       "ADD_ASSESSMENT"
     );

@@ -1,10 +1,12 @@
 import { LLMService } from "./llm-service";
-import { OpenAIProvider } from "./openai";
-import { MistralProvider } from "./mistral";
-import { MISTRAL_API_KEY, OPENAI_API_KEY } from "../config";
+import { OpenAIProvider } from "./providers/openai";
+import { MistralProvider } from "./providers/mistral";
+import { MISTRAL_API_KEY, OLLAMA_ENDPOINT, OPENAI_API_KEY } from "../config";
+import { OllamaProvider } from "./providers/ollama";
 
 export function createLLMService() {
   const openAIProvider = new OpenAIProvider(OPENAI_API_KEY);
   const mistralProvider = new MistralProvider(MISTRAL_API_KEY);
-  return new LLMService(openAIProvider, mistralProvider);
+  const ollamaProvider = new OllamaProvider(OLLAMA_ENDPOINT);
+  return new LLMService(openAIProvider, mistralProvider, ollamaProvider);
 }

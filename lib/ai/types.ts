@@ -1,20 +1,22 @@
 import OpenAI from "openai";
 
 export type TaskType = "job_summary" | "assessment" | "assessmentFromSummary";
-export type LLMProvider = "openai" | "mistral";
+export type LLMProvider = "openai" | "mistral" | "ollama";
+export type LLMModel = OllamaModel | OpenAIModel | MistralModel;
 export type OpenAIModel =
   | "gpt-3.5-turbo-0613" // current gpt-3.5-turbo, does not accept json mode
   | "gpt-3.5-turbo-1106" // latest model, accepts json mode
   | "gpt-4-1106-preview"
   | "gpt-4-0613";
 export type MistralModel = "mistral-tiny" | "mistral-small" | "mistral-medium";
+export type OllamaModel = "llama2" | "mistral" | "mixtral";
 export type CompletionStatus = "pending" | "completed" | "failed";
 export type ValidatorFunction = (data: any) => boolean;
 export type ResponseFormat = "json_object" | "text";
 
 export interface Completion {
   id: number;
-  model: MistralModel | OpenAIModel;
+  model: LLMModel;
   provider: LLMProvider;
   promptTemplateId: string | null;
   inputData: any;
@@ -30,7 +32,7 @@ export interface Completion {
 
 export interface CompletionRequest {
   messages: MessageObject[];
-  model: MistralModel | OpenAIModel;
+  model: LLMModel;
   response_format: ResponseFormat;
   temperature?: number;
 }
@@ -43,7 +45,7 @@ export interface MessageObject {
 export interface LLMRequest {
   jobId: number;
   provider: LLMProvider;
-  model: MistralModel | OpenAIModel;
+  model: LLMModel;
   taskType: TaskType;
   inputData: any;
 }
@@ -55,3 +57,15 @@ export interface LLMResponse {
   usage?: any;
   error?: string;
 }
+export type Models = Record<LLMProvider, LLMModel[]>;
+
+export const models: Models = {
+  openai: [
+    // "gpt-3.5-turbo-0613", // current gpt-3.5-turbo, does not accept json mode
+    "gpt-3.5-turbo-1106", // latest model, accepts json mode
+    "gpt-4-1106-preview",
+    "gpt-4-0613",
+  ],
+  mistral: ["mistral-tiny", "mistral-small", "mistral-medium"],
+  ollama: ["llama2", "mistral"],
+};

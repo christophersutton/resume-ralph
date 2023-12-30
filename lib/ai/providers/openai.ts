@@ -1,4 +1,4 @@
-import { CompletionRequest, LLMResponse } from "./types";
+import { CompletionRequest, LLMResponse } from "../types";
 import OpenAI from "openai";
 
 export class OpenAIProvider {

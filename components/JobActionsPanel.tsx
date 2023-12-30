@@ -1,21 +1,11 @@
 import { useState } from "react";
-import SelectButton from "./ui/SelectButton";
-import { LLMProvider, MistralModel, OpenAIModel } from "@/lib/ai/types";
+import { JobSummary } from "@/lib/types";
+import { LLMModel, LLMProvider, models } from "@/lib/ai/types";
 import { useStore } from "@/context/context";
 import { Button } from "./ui/Button";
-import { JobSummary } from "@/lib/types";
+import SelectButton from "./ui/SelectButton";
 
-type Models = Record<LLMProvider, MistralModel[] | OpenAIModel[]>;
 
-const models: Models = {
-  openai: [
-    // "gpt-3.5-turbo-0613", // current gpt-3.5-turbo, does not accept json mode
-    "gpt-3.5-turbo-1106", // latest model, accepts json mode
-    "gpt-4-1106-preview",
-    "gpt-4-0613",
-  ],
-  mistral: ["mistral-tiny", "mistral-small", "mistral-medium"],
-};
 
 interface JobActionsPanelProps {
   jobId: number;
@@ -30,9 +20,7 @@ const JobActionsPanel: React.FC<JobActionsPanelProps> = ({
 }) => {
   const { createAssessment, createSummary } = useStore();
   const [provider, setProvider] = useState<LLMProvider>("openai");
-  const [model, setModel] = useState<MistralModel | OpenAIModel>(
-    models[provider][0]
-  );
+  const [model, setModel] = useState<LLMModel>(models[provider][0]);
 
   const handleSummaryCreation = async () => {
     const response = await createSummary({
@@ -87,7 +75,7 @@ const JobActionsPanel: React.FC<JobActionsPanelProps> = ({
 
       <div className="flex space-x-4">
         <SelectButton
-          options={["openai", "mistral"] as LLMProvider[]}
+          options={["openai", "mistral", "ollama"] as LLMProvider[]}
           label={"Provider"}
           id={"provider"}
           name={"provider"}
@@ -102,7 +90,7 @@ const JobActionsPanel: React.FC<JobActionsPanelProps> = ({
           name={"model"}
           selectedValue={model}
           onChange={(option) => {
-            setModel(option as MistralModel);
+            setModel(option as LLMModel);
           }}
         />
       </div>

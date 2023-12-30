@@ -1,4 +1,4 @@
-import { CompletionRequest, LLMResponse } from "./types";
+import { CompletionRequest, LLMResponse } from "../types";
 // @ts-ignore
 import MistralClient from "@mistralai/mistralai";
 

@@ -8,11 +8,12 @@ import {
   TaskType,
   ValidatorFunction,
 } from "@/lib/ai/types";
-import { OpenAIProvider } from "./openai";
-import { MistralProvider } from "./mistral";
+import { OpenAIProvider } from "./providers/openai";
+import { MistralProvider } from "./providers/mistral";
 import { isAssessmentJSON, isJobSummaryJSON } from "@/lib/utils/serverUtils";
 import { RESUME_CONTENTS } from "@/lib/constants";
 import { PROMPT_TEMPLATES, TemplateFunction } from "./prompts/prompt-templates";
+import { OllamaProvider } from "./providers/ollama";
 
 const db = DatabaseService.getInstance(DB_LOCATION);
 
@@ -22,10 +23,12 @@ export class LLMService {
   private promptTemplates: typeof PROMPT_TEMPLATES;
   private openAIProvider: OpenAIProvider;
   private mistralProvider?: MistralProvider;
+  private ollamaProvider?: OllamaProvider;
 
   constructor(
     openAIProvider: OpenAIProvider,
-    mistralProvider?: MistralProvider
+    mistralProvider?: MistralProvider,
+    ollamaProvider?: OllamaProvider
   ) {
     this.validators = {
       job_summary: isJobSummaryJSON,
@@ -33,6 +36,7 @@ export class LLMService {
     };
     this.openAIProvider = openAIProvider;
     this.mistralProvider = mistralProvider;
+    this.ollamaProvider = ollamaProvider;
     this.promptTemplates = PROMPT_TEMPLATES;
   }
 
@@ -138,6 +142,11 @@ export class LLMService {
           throw Error("Mistral provider not initialized");
         }
         return this.mistralProvider.getCompletion(request);
+      case "ollama":
+        if (!this.ollamaProvider) {
+          throw Error("Ollama provider not initialized");
+        }
+        return this.ollamaProvider.getCompletion(request);
       default:
         return { success: false, error: "Unknown provider" };
     }
