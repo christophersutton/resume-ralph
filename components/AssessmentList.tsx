@@ -18,7 +18,7 @@ const AssessmentList: React.FC<AssessmentListProps> = ({ jobId }) => {
   const jobAssessments = state.jobs.find(
     (job) => job.id === jobId
   )?.assessments;
-//   console.log(jobAssessments);
+
   if (!jobAssessments) {
     return "loading...";
   }

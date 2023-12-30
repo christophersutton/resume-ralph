@@ -74,7 +74,7 @@ const NewPostingForm: React.FC = () => {
       addJobToStore(data);
       reset();
     } catch (error: any) {
-      console.log("server error: ", error);
+      console.error("server error: ", error);
       setServerError(error.message || "An error occurred");
     }
   };

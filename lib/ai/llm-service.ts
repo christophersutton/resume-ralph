@@ -46,7 +46,6 @@ export class LLMService {
 
     // Perform the API call
     const response = await this.dispatchTask(request);
-    console.log("llm service response: ", response);
 
     if (
       response.success &&

@@ -124,3 +124,7 @@ export function validateResponse<T>(
 ): boolean {
   return validator(response);
 }
+
+const stripMarkdown = (str: string): string => {
+  return str.replace(/`/g, "").replace(/\n/g, " ");
+};
