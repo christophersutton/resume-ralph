@@ -20,24 +20,11 @@ export class OpenAIProvider {
         temperature: temperature,
       });
 
-      let data = null;
-      try {
-        data = response?.choices[0]?.message?.content
-          ? JSON.parse(response.choices[0].message.content)
-          : null;
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
-        return {
-          success: false,
-          error: "Model didn't output JSON",
-          data: data,
-        };
-      }
-
+      const data = response?.choices[0]?.message?.content;
       const usage = response?.usage;
+
       return { success: true, data: data, ...(usage ? { usage } : {}) };
     } catch (error) {
-      // Handle errors appropriately
       console.error("Error in getCompletion:", error);
       return { success: false, error: "Failed to get completion" };
     }

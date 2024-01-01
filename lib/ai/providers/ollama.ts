@@ -32,24 +32,11 @@ export class OllamaProvider {
 
       const responseData = await response.json();
       const usage = {
-        promptTokens: responseData.prompt_eval_count,
-        completionTokens: responseData.eval_count,
+        prompt_tokens: responseData.prompt_eval_count,
+        completion_tokens: responseData.eval_count,
       };
-      
-      let data = null;
-      try {
-        if (
-          response_format === "json_object" &&
-          typeof responseData.response === "string"
-        ) {
-          data = JSON.parse(responseData.response);
-        } else {
-          data = responseData.response;
-        }
-      } catch (error) {
-        console.error("Error parsing response:", error);
-        return { success: false, error: "Error parsing response", data: null };
-      }
+      console.log(usage)
+      const data = responseData.response
 
       return { success: true, data: data, usage: usage };
     } catch (error) {

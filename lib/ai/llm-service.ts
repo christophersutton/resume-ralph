@@ -10,7 +10,12 @@ import {
 } from "@/lib/ai/types";
 import { OpenAIProvider } from "./providers/openai";
 import { MistralProvider } from "./providers/mistral";
-import { isAssessmentJSON, isJobSummaryJSON } from "@/lib/utils/serverUtils";
+import {
+  extractJSON,
+  isAssessmentJSON,
+  isJobSummaryJSON,
+  isValidJSONString,
+} from "@/lib/utils/serverUtils";
 import { RESUME_CONTENTS } from "@/lib/constants";
 import { PROMPT_TEMPLATES, TemplateFunction } from "./prompts/prompt-templates";
 import { OllamaProvider } from "./providers/ollama";
@@ -46,13 +51,14 @@ export class LLMService {
 
     // Perform the API call
     const response = await this.dispatchTask(request);
+    const JSONresponse = this.convertResponseToJson(response.data);
 
     if (
       response.success &&
-      this.isValidOutput(request.taskType, response.data)
+      this.isValidOutput(request.taskType, JSONresponse)
     ) {
       await this.finishCompletionRecord(completionId, response);
-      return { ...response, completionId };
+      return { ...response, data: JSONresponse, completionId };
     } else {
       await this.finishCompletionRecord(completionId, response, "failed");
       // await this.retryJob(jobId, request);
@@ -92,10 +98,8 @@ export class LLMService {
           request.taskType
         );
         promptTemplateId = templateId;
-        messages = templateFunction(
-          request.inputData.jobSummary,
-          request.inputData.jobDescription
-        );
+        // console.log(request.inputData.jobSummary, request.inputData);
+        messages = templateFunction(RESUME_CONTENTS, request.inputData);
         break;
       }
       default:
@@ -174,7 +178,7 @@ export class LLMService {
       promptTemplateId: response.promptTemplateId ?? null,
       promptTokens: response.usage?.prompt_tokens ?? 0,
       completionTokens: response.usage?.completion_tokens ?? 0,
-      status: "completed",
+      status: status,
     });
   }
 
@@ -200,6 +204,20 @@ export class LLMService {
     await db.update("completions", completionId, { status });
   }
 
+  private convertResponseToJson(data: string): JSON | string {
+    let json;
+    try {
+      if (isValidJSONString(data)) {
+        json = JSON.parse(data);
+      } else {
+        const extractedJSON = extractJSON(data);
+        json = JSON.parse(extractedJSON);
+      }
+      return json;
+    } catch (error) {
+      throw Error("Failed to convert response to JSON");
+    }
+  }
   private isValidOutput(taskType: string, data: any): boolean {
     const validator = this.validators[taskType];
     return validator ? validator(data) : true;

@@ -1,3 +1,4 @@
+import { extractJSON, isValidJSONString } from "@/lib/utils/serverUtils";
 import { CompletionRequest, LLMResponse } from "../types";
 // @ts-ignore
 import MistralClient from "@mistralai/mistralai";
@@ -20,18 +21,14 @@ export class MistralProvider {
         response_format: { type: response_format },
       });
 
-      let data = null;
-      try {
-        data = response?.choices[0]?.message?.content
-          ? JSON.parse(response.choices[0].message.content)
-          : null;
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
-        return { success: false, error: "Model didn't output JSON", data: data };
+      const content = response?.choices[0]?.message?.content;
+
+      if (!content) {
+        throw new Error("No content in response");
       }
 
       const usage = response?.usage;
-      return { success: true, data: data, ...(usage ? { usage } : {}) };
+      return { success: true, data: content, ...(usage ? { usage } : {}) };
     } catch (error) {
       // Handle errors appropriately
       console.error("Error in getCompletion:", error);

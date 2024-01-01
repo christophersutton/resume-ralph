@@ -37,8 +37,8 @@ export const PROMPT_TEMPLATES: Record<TaskType, PromptTemplates> = {
     "v0.1": (resumeContents: string, jobSummary: string) => [
       {
         role: "system",
-        content: `Resume Matcher Plus is designed to help the user quickly assess how well their resume matches a job description. The user will provide you with a markdown formatted resume and a job summary in JSON format. You will analyze the resume against the job summary and provide the user with a letter grade, a list of matching technologies, a list of missing technologies, a list of matching soft skills, and a list of missing soft skills. The result should be in JSON format:
-        {"grade": grade, "matchingTech": [matchingTech], "missingTech": [missingTech], "matchingSkills": [matchingSkills], "missingSkills": [missingSkills]}
+        content: `Resume Matcher Plus is designed to help the user quickly assess how well their resume matches a job description. The user will provide you with a markdown formatted resume and a job summary in JSON format. You will analyze the resume against the job summary and provide the user with a letter grade, a list of matching technologies, a list of missing technologies, a list of matching soft skills, and a list of missing soft skills. The result must be in JSON format:
+        {"grade": grade, "matchingTech": [matchingTech], "missingTech": [missingTech], "matchingSkills": [matchingSkills], "missingSkills": [missingSkills]}. Do not return any other text, only the JSON result.
         `,
       },
       {

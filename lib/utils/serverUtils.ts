@@ -128,3 +128,13 @@ export function validateResponse<T>(
 const stripMarkdown = (str: string): string => {
   return str.replace(/`/g, "").replace(/\n/g, " ");
 };
+
+export function extractJSON(str: string): string {
+  const jsonRegex = /{.*}/g;
+  const match = str.match(jsonRegex);
+  console.log(match)
+  if (match) {
+    return match[0];
+  }
+  return "";
+}
