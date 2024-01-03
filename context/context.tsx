@@ -150,7 +150,7 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
       {
         ...props,
         provider: props.provider ?? "openai",
-        model: props.model ?? "gpt-3.5-turbo-1106",
+        model: props.model ?? "gpt-4-1106-preview",
       },
       "ADD_JOB_SUMMARY"
     );
@@ -165,7 +165,7 @@ const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
         provider: props.provider ?? "openai",
         model:
           props.model ??
-          ("gpt-3.5-turbo-1106" as LLMModel),
+          ("gpt-4-1106-preview" as LLMModel),
       },
       "ADD_ASSESSMENT"
     );

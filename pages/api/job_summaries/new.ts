@@ -15,7 +15,7 @@ export default async function handler(
       jobDescription,
       jobId,
       provider = "openai",
-      model = "gpt-3.5-turbo-1106",
+      model = "gpt-4-1106-preview",
     } = await req.body;
     const response = await llm.makeRequest({
       jobId,
