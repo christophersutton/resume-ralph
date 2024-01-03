@@ -73,20 +73,30 @@ const JobDetails = () => {
             <div className="flex space-x-10">
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-slate-200">
-                  Key Technologies
+                  Technologies
                 </h3>
                 <ul className="list-disc list-inside">
-                  {job.primarySummary.keyTechnologies.map((tech, index) => (
+                  {job.primarySummary.technologies.map((tech, index) => (
                     <li key={index}>{tech}</li>
                   ))}
                 </ul>
               </div>
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-slate-200">
-                  Key Skills
+                  Key Tech Skills
                 </h3>
                 <ul className="list-disc list-inside">
-                  {job.primarySummary.keySkills.map((skill, index) => (
+                  {job.primarySummary.keyTechSkills.map((skill, index) => (
+                    <li key={index}>{skill}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-slate-200">
+                  Key Soft Skills
+                </h3>
+                <ul className="list-disc list-inside">
+                  {job.primarySummary.keySoftSkills.map((skill, index) => (
                     <li key={index}>{skill}</li>
                   ))}
                 </ul>

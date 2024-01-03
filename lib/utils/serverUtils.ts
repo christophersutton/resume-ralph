@@ -97,10 +97,10 @@ export function isAssessmentJSON(obj: any): obj is AssessmentAPIResponse {
   return (
     typeof obj === "object" &&
     typeof obj.grade === "string" &&
-    Array.isArray(obj.matchingTech) &&
-    Array.isArray(obj.missingTech) &&
-    Array.isArray(obj.matchingSkills) &&
-    Array.isArray(obj.missingSkills)
+    Array.isArray(obj.matchingTechSkills) &&
+    Array.isArray(obj.missingTechSkills) &&
+    Array.isArray(obj.matchingSoftSkills) &&
+    Array.isArray(obj.missingSoftSkills)
   );
 }
 
@@ -112,8 +112,9 @@ export function isJobSummaryJSON(obj: any): obj is JobSummary {
     typeof obj.companyName === "string" &&
     typeof obj.location === "string" &&
     typeof obj.salaryInfo === "string" &&
-    Array.isArray(obj.keyTechnologies) &&
-    Array.isArray(obj.keySkills) &&
+    Array.isArray(obj.technologies) &&
+    Array.isArray(obj.keyTechSkills) &&
+    Array.isArray(obj.keySoftSkills) &&
     typeof obj.culture === "string"
   );
 }

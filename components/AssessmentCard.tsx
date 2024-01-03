@@ -30,36 +30,33 @@ const AssessmentCard: React.FC<AssessmentCardProps> = ({
           </div>
           <div className="flex mt-4">
             <div className="w-1/2">
-              <TagList label="Matching Tech" tags={assessment.matchingTech} />
+              <TagList
+                label="Matching Tech"
+                tags={assessment.matchingTechSkills}
+              />
             </div>
             <div className="w-1/2">
-              <TagList label="Missing Tech" tags={assessment.missingTech} color="red" />
+              <TagList
+                label="Missing Tech"
+                tags={assessment.missingTechSkills}
+                color="red"
+              />
             </div>
           </div>
           <div className="flex mt-4">
             <div className="w-1/2">
-              <div>
-                <h4 className="font-bold">Matching Skills:</h4>
-                <ul className="flex flex-wrap">
-                  {assessment.matchingSkills.map((skill, index) => (
-                    <li key={index}>
-                      <Pill text={skill} color="green" />
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <TagList
+                label="Matching Soft Skills"
+                tags={assessment.matchingSoftSkills}
+                
+              />
             </div>
             <div className="w-1/2">
-              <div>
-                <h4 className="font-bold">Missing Skills:</h4>
-                <ul className="flex flex-wrap">
-                  {assessment.missingSkills.map((skill, index) => (
-                    <li key={index}>
-                      <Pill text={skill} color="red" />
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <TagList
+                label="Missing Soft Skills"
+                tags={assessment.missingSoftSkills}
+                color="red"
+              />
             </div>
           </div>
         </div>

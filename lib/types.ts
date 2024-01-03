@@ -1,3 +1,4 @@
+import { OPENAI_API_KEY } from './config';
 export interface JobPosting {
   id: number;
   url: string;
@@ -20,8 +21,9 @@ export interface JobSummary {
   companyName: string;
   location: string;
   salaryInfo: string;
-  keyTechnologies: string[];
-  keySkills: string[];
+  technologies: string[];
+  keyTechSkills: string[];
+  keySoftSkills: string[];
   culture: string;
   updatedAt: string;
   createdAt: string;
@@ -36,10 +38,10 @@ export interface Assessment extends AssessmentAPIResponse {
 }
 export interface AssessmentAPIResponse {
   grade: string;
-  matchingTech: string[];
-  missingTech: string[];
-  matchingSkills: string[];
-  missingSkills: string[];
+  matchingTechSkills: string[];
+  missingTechSkills: string[];
+  matchingSoftSkills: string[];
+  missingSoftSkills: string[];
 }
 
 
