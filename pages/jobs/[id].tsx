@@ -7,7 +7,6 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/20/solid";
 import { useStore } from "@/context/context";
 import { Job } from "@/lib/types";
 
-import JobActionsButton from "@/components/JobActionsButton";
 import JobSkeleton from "@/components/JobSkeleton";
 import AssessmentCard from "@/components/AssessmentCard";
 import JobActionsPanel from "@/components/JobActionsPanel";

@@ -4,8 +4,7 @@ import { LLMModel, LLMProvider, models } from "@/lib/ai/types";
 import { useStore } from "@/context/context";
 import { Button } from "./ui/Button";
 import SelectButton from "./ui/SelectButton";
-
-
+import LinkButton from "./ui/LinkButton";
 
 interface JobActionsPanelProps {
   jobId: number;
@@ -72,6 +71,7 @@ const JobActionsPanel: React.FC<JobActionsPanelProps> = ({
   return (
     <div className="place-content-end">
       <h2>Select Options</h2>
+      <LinkButton text={"Update Resume"} href={`/resume?jobId=${jobId}`} />
 
       <div className="flex space-x-4">
         <SelectButton
@@ -82,7 +82,6 @@ const JobActionsPanel: React.FC<JobActionsPanelProps> = ({
           selectedValue={provider}
           onChange={handleProviderChange}
         />
-
         <SelectButton
           options={[...models[provider]]}
           label={"Model"}
