@@ -46,6 +46,7 @@ export const FRONTEND_SKILLS = [
 
 export const BACKEND_SKILLS = [
   "Node",
+  "Node.js",
   "Express",
   "Python",
   "SQL",
@@ -58,7 +59,6 @@ export const BACKEND_SKILLS = [
   "Vercel",
   "Heroku",
   "Netlify",
-  "Google Cloud Platform",
   "Azure",
   "Firebase",
   "MongoDB",
@@ -66,9 +66,7 @@ export const BACKEND_SKILLS = [
   "Redis",
   "PostgreSQL",
   "SQLite",
-  "Oracle",
   "DynamoDB",
-  "Cassandra",
 ];
 export const OTHER_SKILLS = [
   "Feature scoping",
@@ -102,21 +100,6 @@ interface SkillsEditorProps {
   technologies: string[];
   keyTechSkills: string[];
 }
-const highlight = (text: string, highlightWords: string[]) => {
-  const words = text.split(", ");
-  return words
-    .map((word) => {
-      if (highlightWords.includes(word)) {
-        return (
-          <span key="" className="bg-green-300">
-            ${word}
-          </span>
-        );
-      }
-      return word;
-    })
-    .join(", ");
-};
 
 export default function SkillsEditor({
   jobId,
@@ -141,6 +124,7 @@ export default function SkillsEditor({
           jobId,
           myTechnologies: skills,
           jobTechnologies: desiredSkills,
+          model: "gpt-3.5-turbo-1106",
         }),
       });
       setLoading(false);
