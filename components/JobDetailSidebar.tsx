@@ -14,18 +14,25 @@ export const JobDetails: React.FC<{
 
   return (
     <>
-      <div className="text-xs font-semibold leading-6 text-slate-400">
-        Job Details
-      </div>
+      <Link
+        href={`/jobs/${id}`}
+        className="text-xs font-semibold leading-6 text-slate-400 mb-4"
+      >
+        {"< "}Job Details
+      </Link>
 
       {job.primarySummary ? (
-        <div>
-          <h2 className="text-slate-50 text-2xl truncate ...">
-            {job.primarySummary.jobTitle}
-          </h2>
-          <div className="flex justify-between">
-            <span className="font-thin">{job.primarySummary.companyName}</span>
-            <span className="font-thin">{job.primarySummary.salaryInfo}</span>
+        <>
+          <div>
+            <h2 className="text-slate-50 text-2xl truncate ...">
+              {job.primarySummary.jobTitle}
+            </h2>
+            <div className="flex justify-between">
+              <span className="font-thin">
+                {job.primarySummary.companyName}
+              </span>
+              <span className="font-thin">{job.primarySummary.salaryInfo}</span>
+            </div>
           </div>
           <div className="mt-8 flex gap-y-8 flex-col">
             <button
@@ -80,7 +87,7 @@ export const JobDetails: React.FC<{
               />
             </button>
           </div>
-        </div>
+        </>
       ) : (
         <div role="status" className="max-w-sm animate-pulse">
           <div className="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4"></div>

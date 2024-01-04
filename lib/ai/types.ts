@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-export type TaskType = "job_summary" | "assessment" | "assessmentFromSummary";
+export type TaskType = "job_summary" | "assessment" | "assessmentFromSummary" | "techListGenerator";
 export type LLMProvider = "openai" | "mistral" | "ollama";
 export type LLMModel = OllamaModel | OpenAIModel | MistralModel;
 export type OpenAIModel =

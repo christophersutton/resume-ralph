@@ -102,6 +102,18 @@ export class LLMService {
         messages = templateFunction(RESUME_CONTENTS, request.inputData);
         break;
       }
+      case "techListGenerator": {
+        const { templateId, templateFunction } = this.getTemplate(
+          request.taskType
+        );
+        promptTemplateId = templateId;
+
+        messages = templateFunction(
+          request.inputData.experience,
+          request.inputData.desiredSkillList
+        );
+        break;
+      }
       default:
         return {
           success: false,

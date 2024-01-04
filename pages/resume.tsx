@@ -10,6 +10,8 @@ import JobSkeleton from "@/components/JobSkeleton";
 import { loadFile } from "@/lib/utils/serverUtils";
 import { CURRENT_RESUME_FILENAME } from "@/lib/constants";
 import SkillsEditor from "@/components/SkillsEditor";
+import { useSearchParams } from "next/navigation";
+import { classNames } from "@/lib/utils/clientUtils";
 
 export const getStaticProps = () => {
   const resume = loadFile(CURRENT_RESUME_FILENAME);
@@ -20,6 +22,8 @@ export default function ResumeEditor({
   resume,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentEditor = searchParams.get("editor");
   const { jobId } = router.query;
   const { state } = useStore();
   const [job, setJob] = useState<Job | null>(null);
@@ -44,8 +48,20 @@ export default function ResumeEditor({
     return (
       <div className="bg-slate-50 p-6 rounded-sm max-w-2xl">
         <div className="prose prose-md prose-slate prose-h2:mt-2 prose-h1:mb-0 prose-h2:mb-1 prose-p:text-sm prose-li:text-sm prose-ul:my-0 prose-li:leading-4">
-          <Markdown className="prose-p:font-light">{resumeIntro}</Markdown>
-          <SkillsEditor />
+          <Markdown
+            className={classNames(
+              currentEditor == "" ? "" : " ",
+              "prose-p:font-light"
+            )}
+          >
+            {resumeIntro}
+          </Markdown>
+          <SkillsEditor
+            jobId={job.id}
+            editMode={currentEditor === "technologies"}
+            technologies={job.primarySummary.technologies}
+            keyTechSkills={job.primarySummary.keyTechSkills}
+          />
           <Markdown className="">
             {["## Experience", resumeWorkHistory].join("\n")}
           </Markdown>
