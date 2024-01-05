@@ -106,4 +106,21 @@ export const PROMPT_TEMPLATES: Record<TaskType, PromptTemplates> = {
       },
     ],
   },
+  generateSuggestions: {
+    "v0.1": (experience, missingSkills) => [
+      {
+        role: "system",
+        content: `Resume Ralph helps software engineers quickly assess how well their resume matches a job description, and customize their resume for the job. For this task, you will be asked to select a few candidates for experience bullet points and rewrite them to better demonstrate a set of skills. The user will provide you with two inputs: the Experience section of their resume, and a list of key skills that they'd like to incorporate into their resume.
+        
+        For each skill to be incorporated, select the bullet point that you think can be edited to competently demonstrate a desired skill. For each skill you should return the skill (entire skill verbatim from the skills input), the original text of bullet to edit (the entire bullet point, verbatim),  and the proposed text: the edited bullet point that maintains the factual integrity of the original text but is edited, expanded or otherwise improved on in order to demonstrate the desired skill. The result should be in JSON format: {"candidates": {text:string, skill:string, proposed:string}[]} and no other text should be returned.
+        `,
+      },
+      {
+        role: "user",
+        content: `Please let me know your suggested edits. Here is the Experience section of my resume: ${experience} 
+        Here are the skills I'd like to try to incorporate: ${missingSkills}`,
+      },
+    ],
+  },
+  editCandidate: {},
 };

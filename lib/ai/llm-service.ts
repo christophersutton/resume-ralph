@@ -51,6 +51,7 @@ export class LLMService {
 
     // Perform the API call
     const response = await this.dispatchTask(request);
+    console.log(response)
     const JSONresponse = this.convertResponseToJson(response.data);
 
     if (
@@ -103,6 +104,18 @@ export class LLMService {
         break;
       }
       case "techListGenerator": {
+        const { templateId, templateFunction } = this.getTemplate(
+          request.taskType
+        );
+        promptTemplateId = templateId;
+
+        messages = templateFunction(
+          request.inputData.experience,
+          request.inputData.desiredSkillList
+        );
+        break;
+      }
+      case "generateSuggestions": {
         const { templateId, templateFunction } = this.getTemplate(
           request.taskType
         );
@@ -217,6 +230,7 @@ export class LLMService {
   }
 
   private convertResponseToJson(data: string): JSON | string {
+    console.log(data);
     let json;
     try {
       if (isValidJSONString(data)) {
@@ -227,6 +241,7 @@ export class LLMService {
       }
       return json;
     } catch (error) {
+      console.error(error);
       throw Error("Failed to convert response to JSON");
     }
   }

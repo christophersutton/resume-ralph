@@ -133,7 +133,7 @@ const stripMarkdown = (str: string): string => {
 export function extractJSON(str: string): string {
   const jsonRegex = /{.*}/g;
   const match = str.match(jsonRegex);
-  console.log(match)
+  
   if (match) {
     return match[0];
   }

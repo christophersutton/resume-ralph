@@ -1,12 +1,19 @@
 import OpenAI from "openai";
 
-export type TaskType = "job_summary" | "assessment" | "assessmentFromSummary" | "techListGenerator";
+export type TaskType =
+  | "job_summary"
+  | "assessment"
+  | "assessmentFromSummary"
+  | "techListGenerator"
+  | "generateSuggestions"
+  | "editCandidate";
+
 export type LLMProvider = "openai" | "mistral" | "ollama";
 export type LLMModel = OllamaModel | OpenAIModel | MistralModel;
 export type OpenAIModel =
   | "gpt-3.5-turbo-0613" // current gpt-3.5-turbo, does not accept json mode
   | "gpt-3.5-turbo-1106" // latest model, accepts json mode
-  | "gpt-4-1106-preview"
+  | "gpt-4-1106-preview";
 export type MistralModel = "mistral-tiny" | "mistral-small" | "mistral-medium";
 export type OllamaModel = "llama2" | "mistral" | "mixtral";
 export type CompletionStatus = "pending" | "completed" | "failed";

@@ -12,6 +12,7 @@ import { CURRENT_RESUME_FILENAME } from "@/lib/constants";
 import SkillsEditor from "@/components/SkillsEditor";
 import { useSearchParams } from "next/navigation";
 import { classNames } from "@/lib/utils/clientUtils";
+import ExperienceEditor from "@/components/ExperienceEditor";
 
 export const getStaticProps = () => {
   const resume = loadFile(CURRENT_RESUME_FILENAME);
@@ -46,25 +47,39 @@ export default function ResumeEditor({
     </>;
   } else
     return (
-      <div className="bg-slate-50 p-6 rounded-sm max-w-2xl">
-        <div className="prose prose-md prose-slate prose-h2:mt-2 prose-h1:mb-0 prose-h2:mb-1 prose-p:text-sm prose-li:text-sm prose-ul:my-0 prose-li:leading-4">
-          <Markdown
-            className={classNames(
-              currentEditor == "" ? "" : " ",
-              "prose-p:font-light"
+      <div>
+        <div className="bg-slate-50 p-6 rounded-sm max-w-2xl">
+          <div className="prose prose-md prose-slate prose-h2:mt-2 prose-h1:mb-0 prose-h2:mb-1 prose-p:text-sm prose-li:text-sm prose-ul:my-0 prose-li:leading-4">
+            <Markdown
+              className={classNames(
+                currentEditor == "" ? "" : " ",
+                "prose-p:font-light"
+              )}
+            >
+              {resumeIntro}
+            </Markdown>
+            <SkillsEditor
+              jobId={job.id}
+              editMode={currentEditor === "technologies"}
+              technologies={job.primarySummary.technologies}
+              keyTechSkills={job.primarySummary.keyTechSkills}
+            />
+            {currentEditor === "keyTechSkills" ? (
+              <ExperienceEditor
+                jobId={job.id}
+                editMode={currentEditor === "keyTechSkills"}
+                experience={resumeWorkHistory}
+                missingSkills={job.primaryAssessment?.missingTechSkills || []}
+              />
+            ) : (
+              <ExperienceEditor
+                jobId={job.id}
+                editMode={currentEditor === "keySoftSkills"}
+                experience={resumeWorkHistory}
+                missingSkills={job.primaryAssessment?.missingSoftSkills || []}
+              />
             )}
-          >
-            {resumeIntro}
-          </Markdown>
-          <SkillsEditor
-            jobId={job.id}
-            editMode={currentEditor === "technologies"}
-            technologies={job.primarySummary.technologies}
-            keyTechSkills={job.primarySummary.keyTechSkills}
-          />
-          <Markdown className="">
-            {["## Experience", resumeWorkHistory].join("\n")}
-          </Markdown>
+          </div>
         </div>
       </div>
     );
