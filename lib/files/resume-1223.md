@@ -35,6 +35,24 @@ _Remote | Sept 2012 - July 2023_
 - Oversaw Jest testing and React component architecture.
 - Built inventory tracker on top of Amazon Marketplace Web Service API.
 
+**Product & UX Consultant @ Wowd**
+- Led product scoping strategy discussions for alpha release of iOS app
+- Wireframed app architecture & designed full-fidelity comps for key UX flows in Figma
+
+**Strategy & Analytics Consultant @ Various**
+- Facilitated AI strategy sprint for Territory Foods as they prepared for their B-series raise
+- Strategy and analytics consulting for clients such as Stanford Law & MIT Media Review
+- Web & business analyst for Modern Tribe & The Events Calendar
+
+### Gigavibe
+_Remote | Mar 2017 - Jan 2021_  
+**Co-founder & Operating Director**
+- Co-founder & primary operator of two DTC consumer soft goods brand
+- Led all paid & brand marketing: PPC, email marketing, and conversion rate optimization
+- Designed and built Shopify storefront w/ LiquidJS and SASS
+- Head of operations: oversaw supply chain, managed contractor & vendor relations, created customer service SOPs
+- Built inventory tracker on top of Amazon Marketplace Web Service API
+
 ### Custom Ink
 _Fairfax, VA & Remote | July 2008 - Mar 2017_  
 **Director of Strategic Integrations**
